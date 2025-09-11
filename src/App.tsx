@@ -21,7 +21,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   login: () => false,
-  logout: () => {},
+  logout: () => { },
 });
 export const useAuth = () => useContext(AuthContext);
 
@@ -78,7 +78,7 @@ const GlobalStyle = createGlobalStyle`
     max-height: 500px;
     background: url('/logo1.png') no-repeat center center;
     background-size: contain;
-  opacity: 0.40;
+  opacity: 0.20;
     z-index: 0;
     pointer-events: none;
   }

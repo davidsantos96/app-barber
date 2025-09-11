@@ -5,10 +5,17 @@ import { useAuth } from '../App';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
+const LoginWrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const LoginContainer = styled.div`
   max-width: 350px;
-  margin: 5rem auto;
-  background: rgba(30, 30, 30, 0.97);
+  width: 100%;
+  background: rgba(15, 15, 15, 0.98);
   border-radius: 16px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.25);
   padding: 2.5rem 2rem;
@@ -82,20 +89,22 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <LoginContainer>
-      <LoginTitle>Login / Acesso rápido</LoginTitle>
-      <LoginForm onSubmit={handleSubmit}>
-        <LoginField>
-          <label>Usuário</label>
-          <LoginInput value={user} onChange={e => setUser(e.target.value)} required />
-        </LoginField>
-        <LoginField>
-          <label>Senha</label>
-          <LoginInput type="password" value={pass} onChange={e => setPass(e.target.value)} required />
-        </LoginField>
-        <LoginButton type="submit">Entrar</LoginButton>
-      </LoginForm>
-    </LoginContainer>
+    <LoginWrapper>
+      <LoginContainer>
+        <LoginTitle>Login / Acesso rápido</LoginTitle>
+        <LoginForm onSubmit={handleSubmit}>
+          <LoginField>
+            <label>Usuário</label>
+            <LoginInput value={user} onChange={e => setUser(e.target.value)} required />
+          </LoginField>
+          <LoginField>
+            <label>Senha</label>
+            <LoginInput type="password" value={pass} onChange={e => setPass(e.target.value)} required />
+          </LoginField>
+          <LoginButton type="submit">Entrar</LoginButton>
+        </LoginForm>
+      </LoginContainer>
+    </LoginWrapper>
   );
 };
 

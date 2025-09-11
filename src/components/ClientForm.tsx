@@ -9,7 +9,7 @@ interface ClientFormProps {
 }
 
 const Form = styled.form`
-  background: rgba(40, 40, 40, 0.98);
+  background: rgba(15, 15, 15, 0.98);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);

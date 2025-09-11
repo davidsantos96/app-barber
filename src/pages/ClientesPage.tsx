@@ -17,7 +17,7 @@ interface Cliente {
 const Container = styled.main`
   max-width: 800px;
   margin: 2rem auto;
-  background: rgba(30, 30, 30, 0.95);
+  background: rgba(15, 15, 15, 0.97);
   border-radius: 16px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.25);
   padding: 2.5rem 2rem;
