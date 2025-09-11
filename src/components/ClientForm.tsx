@@ -72,7 +72,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSuccess }) => {
     }
     setLoading(true);
     try {
-      await axios.post('http://localhost:3001/clientes', { nome, apelido, telefone });
+  await axios.post('https://app-barber-hmm9.onrender.com/clientes', { nome, apelido, telefone });
       toast.success('Cliente cadastrado com sucesso!');
       setNome('');
       setApelido('');

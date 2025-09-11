@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
-    "start": "npm run dev"
+  "dev": "ts-node-dev src/index.ts",
+  "start": "ts-node src/index.ts"
   },
   "dependencies": {
     "@types/styled-components": "^5.1.34",

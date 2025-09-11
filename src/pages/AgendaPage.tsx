@@ -154,14 +154,14 @@ const AppointmentForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) =>
   const [agendados, setAgendados] = useState<string[]>([]);
 
   useEffect(() => {
-    axios.get('http://localhost:3001/clientes').then(res => setClientes(res.data));
+  axios.get('https://app-barber-hmm9.onrender.com/clientes').then(res => setClientes(res.data));
   }, []);
 
   useEffect(() => {
     // Buscar horários agendados para o dia selecionado
     if (data) {
       const resAgendados = async () => {
-        const res = await axios.get('http://localhost:3001/agendamentos');
+  const res = await axios.get('https://app-barber-hmm9.onrender.com/agendamentos');
         const ags = res.data.filter((a: any) => a.data === data && a.status === 'confirmado');
         setAgendados(ags.map((a: any) => a.horario));
       };
@@ -182,7 +182,7 @@ const AppointmentForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) =>
     }
     setLoading(true);
     try {
-      await axios.post('http://localhost:3001/agendamentos', { clienteId, data, horario });
+  await axios.post('https://app-barber-hmm9.onrender.com/agendamentos', { clienteId, data, horario });
       toast.success('Agendamento realizado!');
       setClienteId('');
       setData('');
@@ -233,12 +233,12 @@ const AgendaPage: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
 
   const fetchAgendamentos = async () => {
-    const res = await axios.get<Agendamento[]>('http://localhost:3001/agendamentos');
+  const res = await axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos');
     setAgendamentos(res.data.filter(a => a.status === 'confirmado'));
   };
 
   const fetchClientes = async () => {
-    const res = await axios.get<Cliente[]>('http://localhost:3001/clientes');
+  const res = await axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes');
     setClientes(res.data);
   };
 
@@ -248,7 +248,7 @@ const AgendaPage: React.FC = () => {
   }, []);
 
   const cancelar = async (id: string) => {
-    await axios.delete(`http://localhost:3001/agendamentos/${id}`);
+  await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${id}`);
     fetchAgendamentos();
   };
 

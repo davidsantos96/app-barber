@@ -73,8 +73,8 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const agRes = await axios.get<Agendamento[]>('http://localhost:3001/agendamentos');
-      const clRes = await axios.get<Cliente[]>('http://localhost:3001/clientes');
+  const agRes = await axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos');
+  const clRes = await axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes');
       setAgendamentos(agRes.data);
       setClientes(clRes.data);
     };

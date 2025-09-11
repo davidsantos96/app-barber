@@ -91,7 +91,7 @@ const ClientesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const fetchClientes = async () => {
-    const res = await axios.get<Cliente[]>('http://localhost:3001/clientes');
+  const res = await axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes');
     setClientes(res.data);
   };
 
