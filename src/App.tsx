@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
-import logo from './assets/react.svg'; // Substitua pelo logo real depois
+// Usar logo1.png da pasta public
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AgendaPage from './pages/AgendaPage';
@@ -63,6 +63,24 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #232526 0%, #414345 100%);
     color: #f5f5f5;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw;
+    max-width: 500px;
+    height: 60vw;
+    max-height: 500px;
+    background: url('/logo1.png') no-repeat center center;
+    background-size: contain;
+  opacity: 0.40;
+    z-index: 0;
+    pointer-events: none;
   }
 `;
 
@@ -72,13 +90,16 @@ const Header = styled.header`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0;
+  padding: 0;
   min-height: 64px;
+  height: 64px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: relative;
+  overflow: hidden;
 `;
 
 const Logo = styled.img`
-  height: 40px;
+  height: 48px;
   display: block;
 `;
 
@@ -87,7 +108,7 @@ function App() {
     <AuthProvider>
       <GlobalStyle />
       <Header>
-        <Logo src={logo} alt="Logo AppBarber" />
+        <Logo src="/logo1.png" alt="Logo AppBarber" />
       </Header>
       <Router>
         <Routes>
