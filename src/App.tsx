@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import styled, { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 // Usar logo1.png da pasta public
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
