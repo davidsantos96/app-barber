@@ -4,15 +4,6 @@ import jwt from 'jsonwebtoken';
 // ATENÇÃO: Esta chave deve ser a mesma usada em `auth.ts` e mantida em segurança.
 const JWT_SECRET = 'sua-chave-secreta-super-longa-e-aleatoria-aqui';
 
-// Estende a interface Request do Express para incluir a propriedade `user`
-declare global {
-  namespace Express {
-    export interface Request {
-      user?: { username: string };
-    }
-  }
-}
-
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
