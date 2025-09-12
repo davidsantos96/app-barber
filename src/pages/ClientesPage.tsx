@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import ClientForm from '../components/ClientForm';
 import Navbar from '../components/Navbar';
 import styled from 'styled-components';
@@ -91,7 +91,7 @@ const ClientesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const fetchClientes = async () => {
-  const res = await axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes');
+  const res = await api.get<Cliente[]>('/clientes');
     setClientes(res.data);
   };
 

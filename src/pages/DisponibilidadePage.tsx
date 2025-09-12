@@ -58,7 +58,7 @@ const ListItem = styled.li`
 `;
 
 
-import axios from 'axios';
+import api from '../api';
 
 const DisponibilidadePage: React.FC = () => {
   const [diaSelecionado, setDiaSelecionado] = React.useState(getHojeIndex());
@@ -68,7 +68,7 @@ const DisponibilidadePage: React.FC = () => {
     // Buscar horários agendados futuros para o dia da semana selecionado
     const buscarAgendados = async () => {
       const hoje = new Date();
-  const res = await axios.get('https://app-barber-hmm9.onrender.com/agendamentos');
+  const res = await api.get('/agendamentos');
       // Filtrar agendamentos futuros do dia da semana selecionado
       const ags = res.data.filter((a: any) => {
         const dataAg = new Date(a.data + 'T00:00:00');

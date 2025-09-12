@@ -74,7 +74,7 @@ const Title = styled.h2`
 
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { toast } from 'react-toastify';
 
 interface Cliente {
@@ -161,8 +161,8 @@ const DashboardPage: React.FC = () => {
   const fetchData = async () => {
     try {
       const [agRes, clRes] = await Promise.all([
-        axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos'),
-        axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes')
+        api.get<Agendamento[]>('/agendamentos'),
+        api.get<Cliente[]>('/clientes')
       ]);
       setAgendamentos(agRes.data);
       setClientes(clRes.data);
@@ -175,7 +175,7 @@ const DashboardPage: React.FC = () => {
   const handleConcluir = async (agendamentoId: string) => {
     if (window.confirm('Marcar este agendamento como concluído?')) {
       try {
-        await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamentoId}`, { status: 'concluido' });
+        await api.put(`/agendamentos/${agendamentoId}`, { status: 'concluido' });
         await fetchData();
         toast.success('Agendamento concluído!');
       } catch (err: any) {
@@ -187,7 +187,7 @@ const DashboardPage: React.FC = () => {
   const handleCancelar = async (agendamentoId: string) => {
     if (window.confirm('Deseja cancelar este agendamento?')) {
       try {
-        await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamentoId}`);
+        await api.delete(`/agendamentos/${agendamentoId}`);
         await fetchData();
         toast.success('Agendamento cancelado!');
       } catch (err: any) {
@@ -219,14 +219,14 @@ const DashboardPage: React.FC = () => {
     if (!modalAgendamento || !novoHorario) return;
     setLoadingReagendar(true);
     try {
-      await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${modalAgendamento.id}`, {
+      await api.put(`/agendamentos/${modalAgendamento.id}`, {
         ...modalAgendamento,
         horario: novoHorario
       });
       setModalAgendamento(null);
       setNovoHorario('');
       // Atualizar lista
-      const agRes = await axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos');
+      const agRes = await api.get<Agendamento[]>('/agendamentos');
       setAgendamentos(agRes.data);
       toast.success('Horário reagendado!');
     } catch {
@@ -255,12 +255,12 @@ const DashboardPage: React.FC = () => {
             <Card key={a.id} disabled={isConcluido}>
               <CardActions>
                 <ActionButton color="#218838" disabled={isConcluido} onClick={() => handleConcluir(a.id)}>Concluído</ActionButton>
-                {/*
+                {
                 <ActionButton color="#185fa9" disabled={isConcluido} onClick={() => {
                   setModalAgendamento(a);
                   setNovoHorario('');
                 }}>Reagendar</ActionButton>
-                */}
+                }
                 <ActionButton color="#a82323" disabled={isConcluido} onClick={() => handleCancelar(a.id)}>Cancelar</ActionButton>
               </CardActions>
               <strong>{a.horario}</strong>

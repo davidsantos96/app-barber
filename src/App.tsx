@@ -8,6 +8,7 @@ import AgendaPage from './pages/AgendaPage';
 import ClientesPage from './pages/ClientesPage';
 import DisponibilidadePage from './pages/DisponibilidadePage';
 import { ToastContainer } from 'react-toastify';
+import api from './api';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Auth Context
@@ -15,31 +16,33 @@ import 'react-toastify/dist/ReactToastify.css';
 // AuthContext fixo para uso exclusivo do barbeiro (admin)
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (user: string, pass: string) => boolean;
+  login: (user: string, pass: string) => Promise<boolean>;
   logout: () => void;
 }
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
-  login: () => false,
+  login: () => Promise.resolve(false),
   logout: () => { },
 });
 export const useAuth = () => useContext(AuthContext);
 
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin';
-
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('auth'));
-  const login = (user: string, pass: string) => {
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
-      localStorage.setItem('auth', '1');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('authToken'));
+
+  const login = async (user: string, pass: string) => {
+    try {
+      const response = await api.post('/auth/login', { user, pass });
+      const { token } = response.data;
+      localStorage.setItem('authToken', token);
       setIsAuthenticated(true);
       return true;
+    } catch (error) {
+      console.error("Falha no login", error);
+      return false;
     }
-    return false;
   };
   const logout = () => {
-    localStorage.removeItem('auth');
+    localStorage.removeItem('authToken');
     setIsAuthenticated(false);
   };
   return (
@@ -57,6 +60,10 @@ const PrivateRoute = ({ element }: { element: React.JSX.Element }) => {
 
 
 const GlobalStyle = createGlobalStyle`
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
   body {
     margin: 0;
     min-height: 100vh;

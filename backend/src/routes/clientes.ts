@@ -5,15 +5,16 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
-// Define the path to the data file
 const dataPath = path.join(__dirname, '..', '..', 'data');
-const clientesFilePath = path.join(dataPath, 'clientes.json');
 
-// Ensure data directory exists
-if (!fs.existsSync(dataPath)) {
-  fs.mkdirSync(dataPath, { recursive: true });
-}
-// Simulação de banco de dados em memória
+const getClientesFilePath = (username: string) => {
+  const userDir = path.join(dataPath, username);
+  if (!fs.existsSync(userDir)) {
+    fs.mkdirSync(userDir, { recursive: true });
+  }
+  return path.join(userDir, 'clientes.json');
+};
+
 interface Cliente {
   id: string;
   nome: string;
@@ -21,53 +22,52 @@ interface Cliente {
   telefone: string;
 }
 
-const readClientes = (): Cliente[] => {
+const readClientes = (username: string): Cliente[] => {
+  const filePath = getClientesFilePath(username);
   try {
-    if (fs.existsSync(clientesFilePath)) {
-      const fileContent = fs.readFileSync(clientesFilePath, 'utf-8');
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, 'utf-8');
       if (!fileContent) return [];
       const data = JSON.parse(fileContent);
       return Array.isArray(data) ? data : [];
     }
   } catch (error) {
-    console.error('Error reading clientes.json:', error);
+    console.error(`Error reading clientes.json for user ${username}:`, error);
   }
   return [];
 };
 
-const writeClientes = (data: Cliente[]) => {
+const writeClientes = (username: string, data: Cliente[]) => {
+  const filePath = getClientesFilePath(username);
   try {
-    fs.writeFileSync(clientesFilePath, JSON.stringify(data, null, 2), 'utf-8');
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
-    console.error('Error writing clientes.json:', error);
+    console.error(`Error writing clientes.json for user ${username}:`, error);
   }
 };
 
-let clientes: Cliente[] = readClientes();
+export function __internal_reset_clientes(): void {
+  // This is now handled in debug.ts
+}
 
-// CRUD de clientes
 // Listar clientes
 router.get('/', (req, res) => {
+  const username = req.user!.username;
+  const clientes = readClientes(username);
   res.json(clientes);
 });
 
 // Criar cliente
 router.post('/', (req, res) => {
+  const username = req.user!.username;
   const { nome, apelido, telefone } = req.body;
   if (!nome || !telefone) {
     return res.status(400).json({ error: 'Nome e telefone são obrigatórios' });
   }
-  if (clientes.some(c => c.telefone === telefone)) {
-    return res.status(409).json({ error: 'Telefone já cadastrado' });
-  }
-  const novoCliente: Cliente = {
-    id: uuidv4(),
-    nome,
-    apelido,
-    telefone
-  };
+  const novoCliente: Cliente = { id: uuidv4(), nome, apelido, telefone };
+  const clientes = readClientes(username);
   clientes.push(novoCliente);
-  writeClientes(clientes);
+  writeClientes(username, clientes);
   res.status(201).json(novoCliente);
 });
 

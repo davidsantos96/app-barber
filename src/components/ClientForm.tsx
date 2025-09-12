@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
@@ -36,7 +36,6 @@ const Label = styled.label`
 const Input = styled.input`
   width: 100%;
   min-width: 0;
-  box-sizing: border-box;
   padding: 0.5rem;
   border-radius: 8px;
   border: 1px solid #444;
@@ -79,7 +78,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSuccess }) => {
     }
     setLoading(true);
     try {
-  await axios.post('https://app-barber-hmm9.onrender.com/clientes', { nome, apelido, telefone });
+      await api.post('/clientes', { nome, apelido, telefone });
       toast.success('Cliente cadastrado com sucesso!');
       setNome('');
       setApelido('');
