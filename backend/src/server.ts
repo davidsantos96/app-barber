@@ -1,3 +1,5 @@
+/// <reference path="./express.d.ts" />
+
 import express from 'express';
 import cors from 'cors';
 import agendamentosRouter from './routes/agendamentos';

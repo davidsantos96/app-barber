@@ -18,11 +18,6 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.user = decoded;
     next();
   } catch (error) {
-    // A biblioteca jsonwebtoken lança erros específicos que podemos usar
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ error: error.message });
-    }
-    console.error('Auth middleware error:', error);
-    return res.status(500).json({ error: 'Erro interno no servidor.' });
+    res.status(401).json({ error: 'Token inválido ou expirado.' });
   }
 };
