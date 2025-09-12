@@ -88,32 +88,10 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const Header = styled.header`
-  width: 100%;
-  background: linear-gradient(90deg, #232526 0%, #434343 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  min-height: 64px;
-  height: 64px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  position: relative;
-  overflow: hidden;
-`;
-
-const Logo = styled.img`
-  height: 48px;
-  display: block;
-`;
-
 function App() {
   return (
     <AuthProvider>
       <GlobalStyle />
-      <Header>
-        <Logo src="/logo1.png" alt="Logo AppBarber" />
-      </Header>
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />

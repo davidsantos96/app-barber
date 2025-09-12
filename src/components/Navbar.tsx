@@ -11,7 +11,8 @@ const NavbarContainer = styled.nav`
   color: #fff;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 2rem;
   min-height: 48px;
   padding: 0 2rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.10);
@@ -19,6 +20,7 @@ const NavbarContainer = styled.nav`
   position: relative;
   z-index: 2;
   @media (max-width: 700px) {
+    justify-content: space-between;
     padding: 0 1rem;
   }
 `;
