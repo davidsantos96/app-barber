@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import api from '../api';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
@@ -78,7 +78,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSuccess }) => {
     }
     setLoading(true);
     try {
-      await api.post('/clientes', { nome, apelido, telefone });
+      await axios.post('https://app-barber-hmm9.onrender.com/clientes', { nome, apelido, telefone });
       toast.success('Cliente cadastrado com sucesso!');
       setNome('');
       setApelido('');

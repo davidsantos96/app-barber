@@ -78,9 +78,9 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (await login(user, pass)) {
+    if (login(user, pass)) {
       toast.success('Login realizado!');
       navigate('/dashboard');
     } else {

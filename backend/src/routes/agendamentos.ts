@@ -7,14 +7,12 @@ const router = Router();
 
 // Define the path to the data file
 const dataPath = path.join(__dirname, '..', '..', 'data');
+const agendamentosFilePath = path.join(dataPath, 'agendamentos.json');
 
-const getAgendamentosFilePath = (username: string) => {
-  const userDir = path.join(dataPath, username);
-  if (!fs.existsSync(userDir)) {
-    fs.mkdirSync(userDir, { recursive: true });
-  }
-  return path.join(userDir, 'agendamentos.json');
-};
+// Ensure data directory exists
+if (!fs.existsSync(dataPath)) {
+  fs.mkdirSync(dataPath, { recursive: true });
+}
 
 // Simulação de banco de dados em memória
 interface Agendamento {
@@ -25,50 +23,46 @@ interface Agendamento {
   status: 'confirmado' | 'cancelado' | 'concluido';
 }
 
-const readAgendamentos = (username: string): Agendamento[] => {
-  const filePath = getAgendamentosFilePath(username);
+const readAgendamentos = (): Agendamento[] => {
   try {
-    if (fs.existsSync(filePath)) {
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
+    if (fs.existsSync(agendamentosFilePath)) {
+      const fileContent = fs.readFileSync(agendamentosFilePath, 'utf-8');
       if (!fileContent) return [];
       const data = JSON.parse(fileContent);
       return Array.isArray(data) ? data : [];
     }
   } catch (error) {
-    console.error(`Error reading agendamentos.json for user ${username}:`, error);
+    console.error('Error reading agendamentos.json:', error);
   }
   return [];
 };
 
-const writeAgendamentos = (username: string, data: Agendamento[]) => {
-  const filePath = getAgendamentosFilePath(username);
+const writeAgendamentos = (data: Agendamento[]) => {
   try {
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    fs.writeFileSync(agendamentosFilePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
-    console.error(`Error writing agendamentos.json for user ${username}:`, error);
+    console.error('Error writing agendamentos.json:', error);
   }
 };
 
+let agendamentos: Agendamento[] = readAgendamentos();
+
 export function __internal_reset_agendamentos(): void {
-  // This is now handled in debug.ts
+  agendamentos.length = 0;
 }
 
 // CRUD de agendamentos
 // Listar agendamentos
 router.get('/', (req, res) => {
-  const username = req.user!.username;
-  const agendamentos = readAgendamentos(username);
   res.json(agendamentos);
 });
 
 // Criar agendamento
 router.post('/', (req, res) => {
-  const username = req.user!.username;
   const { clienteId, data, horario } = req.body;
   if (!clienteId || !data || !horario) {
     return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
   }
-  const agendamentos = readAgendamentos(username);
   // Não permitir sobreposição de horários
   const existe = agendamentos.some(a => a.data === data && a.horario === horario && a.status === 'confirmado');
   if (existe) {
@@ -82,17 +76,15 @@ router.post('/', (req, res) => {
     status: 'confirmado'
   };
   agendamentos.push(novoAgendamento);
-  writeAgendamentos(username, agendamentos);
+  writeAgendamentos(agendamentos);
   res.status(201).json(novoAgendamento);
 });
 
 
 // Atualizar agendamento (reagendar)
 router.put('/:id', (req, res) => {
-  const username = req.user!.username;
   const { id } = req.params;
   const { horario, data, status } = req.body;
-  const agendamentos = readAgendamentos(username);
   const agendamentoIndex = agendamentos.findIndex(a => a.id === id);
   if (agendamentoIndex === -1) {
     return res.status(404).json({ error: 'Agendamento não encontrado' });
@@ -112,21 +104,19 @@ router.put('/:id', (req, res) => {
     agendamento.status = status;
   }
 
-  writeAgendamentos(username, agendamentos);
+  writeAgendamentos(agendamentos);
   res.json(agendamento);
 });
 
 // Cancelar agendamento
 router.delete('/:id', (req, res) => {
-  const username = req.user!.username;
   const { id } = req.params;
-  const agendamentos = readAgendamentos(username);
   const agendamentoIndex = agendamentos.findIndex(a => a.id === id);
   if (agendamentoIndex === -1) {
     return res.status(404).json({ error: 'Agendamento não encontrado' });
   }
   agendamentos[agendamentoIndex].status = 'cancelado';
-  writeAgendamentos(username, agendamentos);
+  writeAgendamentos(agendamentos);
   res.status(204).send();
 });
 

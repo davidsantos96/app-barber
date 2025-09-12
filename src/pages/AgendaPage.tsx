@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import api from '../api';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import styled from 'styled-components';
@@ -154,14 +154,14 @@ const AppointmentForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) =>
   const [agendados, setAgendados] = useState<string[]>([]);
 
   useEffect(() => {
-  api.get('/clientes').then(res => setClientes(res.data));
+  axios.get('https://app-barber-hmm9.onrender.com/clientes').then(res => setClientes(res.data));
   }, []);
 
   useEffect(() => {
     // Buscar horários agendados para o dia selecionado
     if (data) {
       const resAgendados = async () => {
-  const res = await api.get('/agendamentos');
+  const res = await axios.get('https://app-barber-hmm9.onrender.com/agendamentos');
         const ags = res.data.filter((a: any) => a.data === data && a.status === 'confirmado');
         setAgendados(ags.map((a: any) => a.horario));
       };
@@ -182,7 +182,7 @@ const AppointmentForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) =>
     }
     setLoading(true);
     try {
-  await api.post('/agendamentos', { clienteId, data, horario });
+  await axios.post('https://app-barber-hmm9.onrender.com/agendamentos', { clienteId, data, horario });
       toast.success('Agendamento realizado!');
       setClienteId('');
       setData('');
@@ -233,12 +233,12 @@ const AgendaPage: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
 
   const fetchAgendamentos = async () => {
-  const res = await api.get<Agendamento[]>('/agendamentos');
+  const res = await axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos');
     setAgendamentos(res.data.filter(a => a.status === 'confirmado'));
   };
 
   const fetchClientes = async () => {
-  const res = await api.get<Cliente[]>('/clientes');
+  const res = await axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes');
     setClientes(res.data);
   };
 
@@ -248,7 +248,7 @@ const AgendaPage: React.FC = () => {
   }, []);
 
   const cancelar = async (id: string) => {
-  await api.delete(`/agendamentos/${id}`);
+  await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${id}`);
     fetchAgendamentos();
   };
 
