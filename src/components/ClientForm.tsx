@@ -35,12 +35,19 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 0.5rem;
   border-radius: 8px;
   border: 1px solid #444;
   background: #232526;
   color: #fff;
   font-size: 1rem;
+  @media (max-width: 600px) {
+    font-size: 0.97rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+  }
 `;
 
 const Button = styled.button`

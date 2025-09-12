@@ -1,3 +1,49 @@
+import ReactDOM from 'react-dom';
+// Horários fixos disponíveis
+const HORARIOS = [
+  '08:00', '09:00', '10:00', '11:00', '12:00',
+  '13:00', '14:00', '15:00', '16:00', '17:00',
+  '18:00', '19:00', '20:00'
+];
+
+const ModalBg = styled.div`
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+const ModalBox = styled.div`
+  background: #181818;
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  min-width: 280px;
+  max-width: 95vw;
+  color: #fff;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+`;
+const ModalTitle = styled.h3`
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  font-size: 1.2rem;
+`;
+const ModalSelect = styled.select`
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #232526;
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 1.2rem;
+`;
+const ModalActions = styled.div`
+  display: flex;
+  gap: 0.7rem;
+  justify-content: flex-end;
+`;
 
 // ...existing code...
 import Navbar from '../components/Navbar';
@@ -29,6 +75,7 @@ const Title = styled.h2`
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 interface Cliente {
   id: string;
@@ -42,7 +89,7 @@ interface Agendamento {
   clienteId: string;
   data: string;
   horario: string;
-  status: 'confirmado' | 'cancelado';
+  status: 'confirmado' | 'cancelado' | 'concluido';
 }
 
 interface CardProps {
@@ -58,26 +105,98 @@ const Card = styled.div<CardProps>`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   filter: ${({ disabled }) => (disabled ? 'grayscale(0.7)' : 'none')};
-    @media (max-width: 600px) {
-      padding: 1rem 0.5rem;
-      font-size: 0.97rem;
-      border-radius: 7px;
-    }
-  `;
+  @media (max-width: 600px) {
+    padding: 1rem 0.5rem;
+    font-size: 0.97rem;
+    border-radius: 7px;
+  }
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  align-items: flex-end;
+  @media (max-width: 600px) {
+    top: 0.7rem;
+    right: 0.5rem;
+    gap: 0.28rem;
+  }
+`;
+
+const ActionButton = styled.button<{ color?: string }>`
+  background: ${({ color }) => color || '#232526'};
+  color: #fff;
+  border: 1px solid ${({ color }) => color || '#444'};
+  border-radius: 6px;
+  padding: 0.28rem 0.7rem;
+  font-size: 0.93rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  &:hover {
+    filter: brightness(1.1);
+    opacity: 0.92;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 
 const DashboardPage: React.FC = () => {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [modalAgendamento, setModalAgendamento] = useState<Agendamento|null>(null);
+  const [novoHorario, setNovoHorario] = useState('');
+  const [loadingReagendar, setLoadingReagendar] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-  const agRes = await axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos');
-  const clRes = await axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes');
+  const fetchData = async () => {
+    try {
+      const [agRes, clRes] = await Promise.all([
+        axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos'),
+        axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes')
+      ]);
       setAgendamentos(agRes.data);
       setClientes(clRes.data);
-    };
+    } catch (error) {
+      toast.error("Falha ao buscar dados do servidor.");
+      console.error("Fetch data error:", error);
+    }
+  };
+
+  const handleConcluir = async (agendamentoId: string) => {
+    if (window.confirm('Marcar este agendamento como concluído?')) {
+      try {
+        await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamentoId}`, { status: 'concluido' });
+        await fetchData();
+        toast.success('Agendamento concluído!');
+      } catch (err: any) {
+        toast.error(err.response?.data?.error || 'Erro ao concluir agendamento.');
+      }
+    }
+  };
+
+  const handleCancelar = async (agendamentoId: string) => {
+    if (window.confirm('Deseja cancelar este agendamento?')) {
+      try {
+        await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamentoId}`);
+        await fetchData();
+        toast.success('Agendamento cancelado!');
+      } catch (err: any) {
+        toast.error(err.response?.data?.error || 'Erro ao cancelar agendamento.');
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -88,8 +207,34 @@ const DashboardPage: React.FC = () => {
     .sort((a, b) => a.horario.localeCompare(b.horario));
 
   const getCliente = (id: string) => clientes.find(c => c.id === id);
-
   const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+  // Horários disponíveis para reagendar (não ocupados no mesmo dia)
+  function getHorariosDisponiveis(data: string, agendamentoId?: string) {
+    const ocupados = agendamentos.filter(a => a.data === data && a.status === 'confirmado' && a.id !== agendamentoId).map(a => a.horario);
+    return HORARIOS.filter(h => !ocupados.includes(h));
+  }
+
+  async function handleReagendar() {
+    if (!modalAgendamento || !novoHorario) return;
+    setLoadingReagendar(true);
+    try {
+      await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${modalAgendamento.id}`, {
+        ...modalAgendamento,
+        horario: novoHorario
+      });
+      setModalAgendamento(null);
+      setNovoHorario('');
+      // Atualizar lista
+      const agRes = await axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos');
+      setAgendamentos(agRes.data);
+      toast.success('Horário reagendado!');
+    } catch {
+      toast.error('Erro ao reagendar.');
+    } finally {
+      setLoadingReagendar(false);
+    }
+  }
 
   return (
     <>
@@ -105,9 +250,19 @@ const DashboardPage: React.FC = () => {
           // Considera concluído se o horário já passou
           const agora = new Date();
           const horarioAg = new Date(a.data + 'T' + a.horario);
-          const isConcluido = a.status === 'cancelado' || horarioAg < agora;
+          const isConcluido = a.status === 'cancelado' || a.status === 'concluido' || horarioAg < agora;
           return (
             <Card key={a.id} disabled={isConcluido}>
+              <CardActions>
+                <ActionButton color="#218838" disabled={isConcluido} onClick={() => handleConcluir(a.id)}>Concluído</ActionButton>
+                {/*
+                <ActionButton color="#185fa9" disabled={isConcluido} onClick={() => {
+                  setModalAgendamento(a);
+                  setNovoHorario('');
+                }}>Reagendar</ActionButton>
+                */}
+                <ActionButton color="#a82323" disabled={isConcluido} onClick={() => handleCancelar(a.id)}>Cancelar</ActionButton>
+              </CardActions>
               <strong>{a.horario}</strong>
               <span>Data: {dataFormatada} / {diaNome}</span>
               <span>Cliente: {cliente ? cliente.nome : a.clienteId} {cliente?.apelido && `(${cliente.apelido})`}</span>
@@ -115,6 +270,28 @@ const DashboardPage: React.FC = () => {
             </Card>
           );
         })}
+        {modalAgendamento && ReactDOM.createPortal(
+          <ModalBg>
+            <ModalBox>
+              <ModalTitle>Reagendar horário</ModalTitle>
+              <div style={{marginBottom: '0.7rem'}}>
+                <b>Cliente:</b> {getCliente(modalAgendamento.clienteId)?.nome || modalAgendamento.clienteId}<br/>
+                <b>Data:</b> {modalAgendamento.data}
+              </div>
+              <ModalSelect value={novoHorario} onChange={e => setNovoHorario(e.target.value)}>
+                <option value="">Selecione um novo horário</option>
+                {getHorariosDisponiveis(modalAgendamento.data, modalAgendamento.id).map(h => (
+                  <option key={h} value={h}>{h}</option>
+                ))}
+              </ModalSelect>
+              <ModalActions>
+                <ActionButton color="#444" onClick={() => setModalAgendamento(null)} disabled={loadingReagendar}>Fechar</ActionButton>
+                <ActionButton color="#218838" onClick={handleReagendar} disabled={!novoHorario || loadingReagendar}>
+                  {loadingReagendar ? 'Salvando...' : 'Salvar'}
+                </ActionButton>
+              </ModalActions>
+            </ModalBox>
+          </ModalBg>, document.body)}
       </Container>
     </>
   );

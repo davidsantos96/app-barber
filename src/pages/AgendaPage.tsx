@@ -17,7 +17,7 @@ interface Agendamento {
   clienteId: string;
   data: string;
   horario: string;
-  status: 'confirmado' | 'cancelado';
+  status: 'confirmado' | 'cancelado' | 'concluido';
 }
 
 const Form = styled.form`
