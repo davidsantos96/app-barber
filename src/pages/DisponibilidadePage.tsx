@@ -12,7 +12,7 @@ const getHojeIndex = () => {
   // 1=Segunda, 6=Sábado (0=Domingo não usado)
   return hoje === 0 ? 0 : hoje - 1;
 };
-const horariosFixos = Array.from({ length: (21 - 9) * 2 + 1 }, (_, i) => {
+const horariosFixos = Array.from({ length: (20 - 9) * 2 + 1 }, (_, i) => {
   const hora = 9 + Math.floor(i / 2);
   const minuto = (i % 2) * 30;
   return `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
