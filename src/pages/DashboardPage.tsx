@@ -1,10 +1,23 @@
 import ReactDOM from 'react-dom';
 // Horários fixos disponíveis
-const HORARIOS = [
-  '08:00', '09:00', '10:00', '11:00', '12:00',
-  '13:00', '14:00', '15:00', '16:00', '17:00',
-  '18:00', '19:00', '20:00'
-];
+const HORARIOS = Array.from({ length: (20 - 9) * 2 + 1 }, (_, i) => {
+  const hora = 9 + Math.floor(i / 2);
+  const minuto = (i % 2) * 30;
+  return `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
+});
+
+const isPausaAlmoco = (horario: string, data: string): boolean => {
+  if (!data) return false;
+  const dia = new Date(data + 'T00:00:00').getDay();
+  // dia: 0=Dom, 1=Seg, ..., 6=Sab
+  if (dia >= 1 && dia <= 5) { // Segunda a Sexta
+    return horario === '12:00' || horario === '12:30';
+  }
+  if (dia === 6) { // Sábado
+    return horario === '13:00' || horario === '13:30';
+  }
+  return false;
+};
 
 const ModalBg = styled.div`
   position: fixed;
@@ -212,7 +225,7 @@ const DashboardPage: React.FC = () => {
   // Horários disponíveis para reagendar (não ocupados no mesmo dia)
   function getHorariosDisponiveis(data: string, agendamentoId?: string) {
     const ocupados = agendamentos.filter(a => a.data === data && a.status === 'confirmado' && a.id !== agendamentoId).map(a => a.horario);
-    return HORARIOS.filter(h => !ocupados.includes(h));
+    return HORARIOS.filter(h => !ocupados.includes(h) && !isPausaAlmoco(h, data));
   }
 
   async function handleReagendar() {

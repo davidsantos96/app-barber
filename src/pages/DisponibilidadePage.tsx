@@ -12,10 +12,23 @@ const getHojeIndex = () => {
   // 1=Segunda, 6=Sábado (0=Domingo não usado)
   return hoje === 0 ? 0 : hoje - 1;
 };
-const horariosFixos = Array.from({ length: 13 }, (_, i) => {
-  const h = 8 + i;
-  return `${h.toString().padStart(2, '0')}:00`;
+const horariosFixos = Array.from({ length: (21 - 9) * 2 + 1 }, (_, i) => {
+  const hora = 9 + Math.floor(i / 2);
+  const minuto = (i % 2) * 30;
+  return `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
 });
+
+const isPausaAlmoco = (horario: string, diaIndex: number): boolean => {
+  // Segunda a Sexta (índice 0 a 4)
+  if (diaIndex >= 0 && diaIndex <= 4) {
+    return horario === '12:00' || horario === '12:30';
+  }
+  // Sábado (índice 5)
+  if (diaIndex === 5) {
+    return horario === '13:00' || horario === '13:30';
+  }
+  return false;
+};
 
 const Container = styled.main`
   max-width: 800px;
@@ -124,11 +137,16 @@ const DisponibilidadePage: React.FC = () => {
               defaultValue=""
             >
               <option value="" disabled>Selecione um horário</option>
-              {horariosFixos.map(h => (
-                <option key={h} value={h} disabled={agendados.includes(h)}>
-                  {h} {agendados.includes(h) ? '(Indisponível)' : ''}
-                </option>
-              ))}
+              {horariosFixos.map(h => {
+                const isAlmoco = isPausaAlmoco(h, diaSelecionado);
+                const isAgendado = agendados.includes(h);
+                const isDisabled = isAlmoco || isAgendado;
+                return (
+                  <option key={h} value={h} disabled={isDisabled}>
+                    {h} {isAgendado ? '(Indisponível)' : isAlmoco ? '(Almoço)' : ''}
+                  </option>
+                );
+              })}
             </select>
           </ListItem>
         </List>

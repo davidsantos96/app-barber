@@ -103,7 +103,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSuccess }) => {
       </Field>
       <Field>
         <Label>Telefone*</Label>
-        <Input value={telefone} onChange={e => setTelefone(e.target.value)} required />
+        <Input type="tel" inputMode='numeric' pattern="[0-9]*" value={telefone} onChange={e => setTelefone(e.target.value)} />
       </Field>
       <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Cadastrar'}</Button>
     </Form>

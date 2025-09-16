@@ -147,11 +147,25 @@ const AppointmentForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) =>
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [loading, setLoading] = useState(false);
-  const horariosFixos = Array.from({ length: 13 }, (_, i) => {
-    const h = 8 + i;
-    return `${h.toString().padStart(2, '0')}:00`;
+  const horariosFixos = Array.from({ length: (20 - 9) * 2 + 1 }, (_, i) => {
+    const hora = 9 + Math.floor(i / 2);
+    const minuto = (i % 2) * 30;
+    return `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
   });
   const [agendados, setAgendados] = useState<string[]>([]);
+
+  const isPausaAlmoco = (horario: string, dataSelecionada: string): boolean => {
+    if (!dataSelecionada) return false;
+    const dia = new Date(dataSelecionada + 'T00:00:00').getDay();
+    // dia: 0=Dom, 1=Seg, ..., 6=Sab
+    if (dia >= 1 && dia <= 5) { // Segunda a Sexta
+      return horario === '12:00' || horario === '12:30';
+    }
+    if (dia === 6) { // Sábado
+      return horario === '13:00' || horario === '13:30';
+    }
+    return false;
+  };
 
   useEffect(() => {
   axios.get('https://app-barber-hmm9.onrender.com/clientes').then(res => setClientes(res.data));
@@ -214,11 +228,16 @@ const AppointmentForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) =>
         <Label>Horário*</Label>
         <Select value={horario} onChange={e => setHorario(e.target.value)} required disabled={!data}>
           <option value="">Selecione</option>
-          {horariosFixos.map(h => (
-            <option key={h} value={h} disabled={agendados.includes(h)}>
-              {h} {agendados.includes(h) ? '(Indisponível)' : ''}
-            </option>
-          ))}
+          {horariosFixos.map(h => {
+            const isAlmoco = isPausaAlmoco(h, data);
+            const isAgendado = agendados.includes(h);
+            const isDisabled = isAlmoco || isAgendado;
+            return (
+              <option key={h} value={h} disabled={isDisabled}>
+                {h} {isAgendado ? '(Indisponível)' : isAlmoco ? '(Almoço)' : ''}
+              </option>
+            );
+          })}
         </Select>
       </Field>
       <Button type="submit" disabled={loading}>Agendar</Button>
