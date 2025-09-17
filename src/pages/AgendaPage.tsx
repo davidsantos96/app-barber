@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import styled from 'styled-components';
+import { AgendaContainer, AgendaTitle } from './AgendaPage.style';
 
 interface Cliente {
   id: string;
@@ -279,8 +280,8 @@ const AgendaPage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <Container>
-        <Title>Agenda</Title>
+      <AgendaContainer>
+        <AgendaTitle>Agenda</AgendaTitle>
         <AppointmentForm onSuccess={fetchAgendamentos} />
         <SubTitle>Agendamentos</SubTitle>
         <List>
@@ -291,7 +292,7 @@ const AgendaPage: React.FC = () => {
             </ListItem>
           ))}
         </List>
-      </Container>
+  </AgendaContainer>
     </>
   );
 };

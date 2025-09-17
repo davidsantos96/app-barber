@@ -1,3 +1,8 @@
+// TODO: Criar arquivo separado para Routes
+// TODO: Criar login unico para cada barbeiro (admin)
+// TODO: VErificar a criação de hoohks
+
+
 import React, { createContext, useContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';

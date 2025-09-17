@@ -37,11 +37,20 @@ const readAgendamentos = (): Agendamento[] => {
   return [];
 };
 
+const backupsPath = path.join(dataPath, 'backups');
+if (!fs.existsSync(backupsPath)) {
+  fs.mkdirSync(backupsPath, { recursive: true });
+}
+
 const writeAgendamentos = (data: Agendamento[]) => {
   try {
     fs.writeFileSync(agendamentosFilePath, JSON.stringify(data, null, 2), 'utf-8');
+    // Backup automático
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFile = path.join(backupsPath, `agendamentos-backup-${timestamp}.json`);
+    fs.copyFileSync(agendamentosFilePath, backupFile);
   } catch (error) {
-    console.error('Error writing agendamentos.json:', error);
+    console.error('Error writing agendamentos.json or backup:', error);
   }
 };
 

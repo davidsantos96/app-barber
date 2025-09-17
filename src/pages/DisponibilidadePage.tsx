@@ -3,6 +3,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import styled from 'styled-components';
+import { DisponibilidadeContainer, DisponibilidadeTitle } from './DisponibilidadePage.style';
 
 const diasSemana = [
   'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'
@@ -99,8 +100,8 @@ const DisponibilidadePage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <Container>
-        <Title>Horários Disponíveis</Title>
+      <DisponibilidadeContainer>
+        <DisponibilidadeTitle>Horários Disponíveis</DisponibilidadeTitle>
         <SubTitle>Selecione o dia da semana</SubTitle>
         <select
           style={{
@@ -150,7 +151,7 @@ const DisponibilidadePage: React.FC = () => {
             </select>
           </ListItem>
         </List>
-      </Container>
+  </DisponibilidadeContainer>
     </>
   );
 };

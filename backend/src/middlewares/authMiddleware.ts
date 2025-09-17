@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = 'sua-chave-secreta-super-longa-e-aleatoria-aqui';
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  // Arquivo movido para middlewares/authMiddleware.ts
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
