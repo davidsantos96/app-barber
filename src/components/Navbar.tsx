@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
 // ...existing code...
 import { NavbarContainer, Brand, HamburgerMenu, NavLinks, StyledLink, LogoutButton } from './Navbar.style';

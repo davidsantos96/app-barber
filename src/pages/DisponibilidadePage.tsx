@@ -31,26 +31,7 @@ const isPausaAlmoco = (horario: string, diaIndex: number): boolean => {
   return false;
 };
 
-const Container = styled.main`
-  max-width: 800px;
-  margin: 2rem auto;
-  background: rgba(15, 15, 15, 0.97);
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
-  padding: 2.5rem 2rem;
-  color: #f5f5f5;
-  @media (max-width: 600px) {
-    max-width: 98vw;
-    padding: 1rem 0.5rem;
-    border-radius: 8px;
-  }
-`;
-const Title = styled.h2`
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  font-weight: 700;
-  color: #fff;
-`;
+
 const SubTitle = styled.h3`
   font-size: 1.2rem;
   margin-top: 2rem;
