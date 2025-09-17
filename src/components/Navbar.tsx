@@ -1,14 +1,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../App';
-// ...existing code...
+import { useAuth } from '../auth';
 import { NavbarContainer, Brand, HamburgerMenu, NavLinks, StyledLink, LogoutButton } from './Navbar.style';
-
-
-// ...existing code...
-
-// ...existing code...
 
 const Navbar: React.FC = () => {
   const { logout } = useAuth();

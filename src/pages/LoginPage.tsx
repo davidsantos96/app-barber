@@ -1,76 +1,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../App';
+import { useAuth } from '../auth';
 import { toast } from 'react-toastify';
-import styled from 'styled-components';
+import { LoginWrapper, LoginContainer, LoginTitle, LoginForm, LoginField, LoginInput, LoginButton } from './LoginPage.style';
 
-const LoginWrapper = styled.div`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 
-const LoginContainer = styled.div`
-  max-width: 350px;
-  width: 100%;
-  background: rgba(15, 15, 15, 0.98);
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
-  padding: 2.5rem 2rem;
-  color: #f5f5f5;
-  @media (max-width: 600px) {
-    max-width: 98vw;
-    padding: 1rem 0.5rem;
-    border-radius: 8px;
-  }
-`;
-
-const LoginTitle = styled.h2`
-  font-size: 1.5rem;
-  margin-bottom: 1.2rem;
-  text-align: center;
-  color: #fff;
-`;
-
-const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-`;
-
-const LoginField = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-`;
-
-const LoginInput = styled.input`
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background: #232526;
-  color: #fff;
-  font-size: 1rem;
-`;
-
-const LoginButton = styled.button`
-  background: #434343;
-  color: #fff;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  margin-top: 0.5rem;
-  transition: background 0.2s;
-  &:hover {
-    background: #232526;
-  }
-`;
 
 const LoginPage: React.FC = () => {
   const [user, setUser] = useState('');
