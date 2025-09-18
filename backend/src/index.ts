@@ -3,6 +3,7 @@ import cors from 'cors';
 import clientesRouter from './routes/clientes';
 import agendamentosRouter from './routes/agendamentos';
 import disponibilidadeRouter from './routes/disponibilidade';
+import dashboardRouter from './routes/dashboard';
 
 const app = express();
 // Permitir requisições de qualquer origem (CORS)
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
 app.use('/clientes', clientesRouter);
 app.use('/agendamentos', agendamentosRouter);
 app.use('/disponibilidade', disponibilidadeRouter);
+app.use('/dashboard', dashboardRouter);
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
