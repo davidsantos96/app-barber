@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = Router();
 
 // ATENÇÃO: Em um ambiente de produção, esta chave deve ser muito mais complexa
 // e armazenada de forma segura, como em uma variável de ambiente.
-const JWT_SECRET = 'sua-chave-secreta-super-longa-e-aleatoria-aqui';
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 // Em um app real, isso viria de um banco de dados.
 const users = [
