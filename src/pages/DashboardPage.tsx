@@ -167,12 +167,22 @@ const ActionButton = styled.button<{ color?: string }>`
 const DashboardPage: React.FC = () => {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [totalClientes, setTotalClientes] = useState<number>(0);
+  const [totalAgendamentos, setTotalAgendamentos] = useState<number>(0);
+  const [proximosAgendamentos, setProximosAgendamentos] = useState<Agendamento[]>([]);
   const [modalAgendamento, setModalAgendamento] = useState<Agendamento|null>(null);
   const [novoHorario, setNovoHorario] = useState('');
   const [loadingReagendar, setLoadingReagendar] = useState(false);
 
   const fetchData = async () => {
     try {
+      // Busca dashboard e dados completos
+      const dashRes = await axios.get('https://app-barber-hmm9.onrender.com/dashboard');
+      setTotalClientes(dashRes.data.totalClientes ?? 0);
+      setTotalAgendamentos(dashRes.data.totalAgendamentos ?? 0);
+      setProximosAgendamentos(dashRes.data.proximosAgendamentos ?? []);
+
+      // Busca todos agendamentos e clientes para funcionalidades da tela
       const [agRes, clRes] = await Promise.all([
         axios.get<Agendamento[]>('https://app-barber-hmm9.onrender.com/agendamentos'),
         axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes')
@@ -184,6 +194,18 @@ const DashboardPage: React.FC = () => {
       console.error("Fetch data error:", error);
     }
   };
+  // Exemplo de exibição das métricas e próximos agendamentos
+  // Adicione onde desejar no JSX:
+  // <Card>
+  //   <div>Total de clientes: {totalClientes}</div>
+  //   <div>Total de agendamentos: {totalAgendamentos}</div>
+  //   <div>Próximos agendamentos:</div>
+  //   <ul>
+  //     {proximosAgendamentos.map(a => (
+  //       <li key={a.id}>{a.data} {a.horario} - Cliente: {getCliente(a.clienteId)?.nome ?? a.clienteId}</li>
+  //     ))}
+  //   </ul>
+  // </Card>
 
   const handleConcluir = async (agendamentoId: string) => {
     if (window.confirm('Marcar este agendamento como concluído?')) {
@@ -254,6 +276,16 @@ const DashboardPage: React.FC = () => {
       <Navbar />
       <Container>
         <Title>Agendamentos de Hoje</Title>
+        <Card>
+          <div><b>Total de clientes:</b> {totalClientes}</div>
+          <div><b>Total de agendamentos:</b> {totalAgendamentos}</div>
+          <div><b>Próximos agendamentos:</b></div>
+          <ul>
+            {proximosAgendamentos.map(a => (
+              <li key={a.id}>{a.data} {a.horario} - Cliente: {getCliente(a.clienteId)?.nome ?? a.clienteId}</li>
+            ))}
+          </ul>
+        </Card>
         {agendamentosHoje.length === 0 && <p>Nenhum agendamento para hoje.</p>}
         {agendamentosHoje.map(a => {
           const cliente = getCliente(a.clienteId);

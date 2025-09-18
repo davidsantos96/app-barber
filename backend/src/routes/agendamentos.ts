@@ -1,20 +1,11 @@
 import { Router } from 'express';
-import fs from 'fs';
-import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '../supabaseClient';
 
 const router = Router();
 
 // Define the path to the data file
-const dataPath = path.join(__dirname, '..', '..', 'data');
-const agendamentosFilePath = path.join(dataPath, 'agendamentos.json');
 
-// Ensure data directory exists
-if (!fs.existsSync(dataPath)) {
-  fs.mkdirSync(dataPath, { recursive: true });
-}
-
-// Simulação de banco de dados em memória
 interface Agendamento {
   id: string;
   clienteId: string;
@@ -23,109 +14,122 @@ interface Agendamento {
   status: 'confirmado' | 'cancelado' | 'concluido';
 }
 
-const readAgendamentos = (): Agendamento[] => {
-  try {
-    if (fs.existsSync(agendamentosFilePath)) {
-      const fileContent = fs.readFileSync(agendamentosFilePath, 'utf-8');
-      if (!fileContent) return [];
-      const data = JSON.parse(fileContent);
-      return Array.isArray(data) ? data : [];
-    }
-  } catch (error) {
-    console.error('Error reading agendamentos.json:', error);
-  }
-  return [];
-};
-
-const backupsPath = path.join(dataPath, 'backups');
-if (!fs.existsSync(backupsPath)) {
-  fs.mkdirSync(backupsPath, { recursive: true });
-}
-
-const writeAgendamentos = (data: Agendamento[]) => {
-  try {
-    fs.writeFileSync(agendamentosFilePath, JSON.stringify(data, null, 2), 'utf-8');
-    // Backup automático
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupFile = path.join(backupsPath, `agendamentos-backup-${timestamp}.json`);
-    fs.copyFileSync(agendamentosFilePath, backupFile);
-  } catch (error) {
-    console.error('Error writing agendamentos.json or backup:', error);
-  }
-};
-
-let agendamentos: Agendamento[] = readAgendamentos();
-
-export function __internal_reset_agendamentos(): void {
-  agendamentos.length = 0;
-}
-
 // CRUD de agendamentos
+
 // Listar agendamentos
-router.get('/', (req, res) => {
-  res.json(agendamentos);
+router.get('/', async (req, res) => {
+  const { data, error } = await supabase.from('agendamentos').select('*');
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data ?? []);
 });
 
+
 // Criar agendamento
-router.post('/', (req, res) => {
-  const { clienteId, data, horario } = req.body;
-  if (!clienteId || !data || !horario) {
+router.post('/', async (req, res) => {
+  const { clienteId, data: dataAgendamento, horario } = req.body;
+  if (!clienteId || !dataAgendamento || !horario) {
     return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
   }
-  // Não permitir sobreposição de horários
-  const existe = agendamentos.some(a => a.data === data && a.horario === horario && a.status === 'confirmado');
-  if (existe) {
+  // Verifica sobreposição de horários
+  const { data: existentes, error: errorExistentes } = await supabase
+    .from('agendamentos')
+    .select('*')
+    .eq('data', dataAgendamento)
+    .eq('horario', horario)
+    .eq('status', 'confirmado');
+  if (errorExistentes) {
+    return res.status(500).json({ error: errorExistentes.message });
+  }
+  if (existentes && existentes.length > 0) {
     return res.status(409).json({ error: 'Horário já ocupado' });
   }
   const novoAgendamento: Agendamento = {
     id: uuidv4(),
     clienteId,
-    data,
+    data: dataAgendamento,
     horario,
     status: 'confirmado'
   };
-  agendamentos.push(novoAgendamento);
-  writeAgendamentos(agendamentos);
-  res.status(201).json(novoAgendamento);
+  const { data, error } = await supabase.from('agendamentos').insert([novoAgendamento]).select();
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.status(201).json(data?.[0] ?? novoAgendamento);
 });
+
 
 
 // Atualizar agendamento (reagendar)
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { horario, data, status } = req.body;
-  const agendamentoIndex = agendamentos.findIndex(a => a.id === id);
-  if (agendamentoIndex === -1) {
+  const { horario, data: dataAgendamento, status } = req.body;
+  // Verifica se existe agendamento
+  const { data: agendamentoAtual, error: errorAtual } = await supabase
+    .from('agendamentos')
+    .select('*')
+    .eq('id', id);
+  if (errorAtual) {
+    return res.status(500).json({ error: errorAtual.message });
+  }
+  if (!agendamentoAtual || agendamentoAtual.length === 0) {
     return res.status(404).json({ error: 'Agendamento não encontrado' });
   }
-
-  const agendamento = agendamentos[agendamentoIndex];
-  // Não permitir sobreposição de horários
-  if (data && horario) {
-    const existe = agendamentos.some(a => a.data === data && a.horario === horario && a.status === 'confirmado' && a.id !== id);
-    if (existe) {
+  // Verifica sobreposição de horários
+  if (dataAgendamento && horario) {
+    const { data: existentes, error: errorExistentes } = await supabase
+      .from('agendamentos')
+      .select('*')
+      .eq('data', dataAgendamento)
+      .eq('horario', horario)
+      .eq('status', 'confirmado')
+      .neq('id', id);
+    if (errorExistentes) {
+      return res.status(500).json({ error: errorExistentes.message });
+    }
+    if (existentes && existentes.length > 0) {
       return res.status(409).json({ error: 'Horário já ocupado' });
     }
-    agendamento.data = data;
-    agendamento.horario = horario;
   }
-  if (status) {
-    agendamento.status = status;
+  const updateObj: Partial<Agendamento> = {};
+  if (dataAgendamento) updateObj.data = dataAgendamento;
+  if (horario) updateObj.horario = horario;
+  if (status) updateObj.status = status;
+  const { data, error } = await supabase
+    .from('agendamentos')
+    .update(updateObj)
+    .eq('id', id)
+    .select();
+  if (error) {
+    return res.status(500).json({ error: error.message });
   }
-
-  writeAgendamentos(agendamentos);
-  res.json(agendamento);
+  res.json(data?.[0] ?? updateObj);
 });
 
+
 // Cancelar agendamento
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  const agendamentoIndex = agendamentos.findIndex(a => a.id === id);
-  if (agendamentoIndex === -1) {
+  // Verifica se existe agendamento
+  const { data: agendamentoAtual, error: errorAtual } = await supabase
+    .from('agendamentos')
+    .select('*')
+    .eq('id', id);
+  if (errorAtual) {
+    return res.status(500).json({ error: errorAtual.message });
+  }
+  if (!agendamentoAtual || agendamentoAtual.length === 0) {
     return res.status(404).json({ error: 'Agendamento não encontrado' });
   }
-  agendamentos[agendamentoIndex].status = 'cancelado';
-  writeAgendamentos(agendamentos);
+  // Atualiza status para cancelado
+  const { error } = await supabase
+    .from('agendamentos')
+    .update({ status: 'cancelado' })
+    .eq('id', id);
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
   res.status(204).send();
 });
 
