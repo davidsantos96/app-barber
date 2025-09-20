@@ -8,13 +8,16 @@ import {
   BackButton,
   HeaderTitle,
   MainContent,
-  Form,
+  FormCard,
   FieldGroup,
   IconLeft,
-  Select,
   Input,
-  Footer,
-  AgendarButton
+  Select,
+  AgendarButton,
+  ClienteSuggestions,
+  ClienteSuggestionItem,
+  ClienteSuggestionEmpty,
+
 } from './AgendaPage.style';
 import { FiUser, FiScissors, FiCalendar, FiClock } from 'react-icons/fi';
 import { useRef } from 'react';
@@ -41,12 +44,12 @@ const NovoAgendamentoPage: React.FC = () => {
   const [searchCliente, setSearchCliente] = useState('');
 
 
-interface Servico {
-  id: string;
-  nome: string;
-  preco: number;
-}
-const [servicos, setServicos] = useState<Servico[]>([]);
+  interface Servico {
+    id: string;
+    nome: string;
+    preco: number;
+  }
+  const [servicos, setServicos] = useState<Servico[]>([]);
 
 
   useEffect(() => {
@@ -87,8 +90,8 @@ const [servicos, setServicos] = useState<Servico[]>([]);
         <div style={{ width: 32 }} />
       </HeaderBar>
       <MainContent>
-        <Form onSubmit={handleSubmit}>
-          <FieldGroup style={{ position: 'relative' }}>
+        <FormCard as="form" onSubmit={handleSubmit}>
+          <FieldGroup>
             <IconLeft><FiUser /></IconLeft>
             <Input
               type="text"
@@ -100,39 +103,18 @@ const [servicos, setServicos] = useState<Servico[]>([]);
               }}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              style={{ paddingLeft: '2.8rem', marginBottom: '0.7rem' }}
             />
             {showSuggestions && searchCliente.trim() && (
-              <ul style={{
-                position: 'absolute',
-                top: '110%',
-                left: 0,
-                right: 0,
-                background: '#232526',
-                borderRadius: '0.75rem',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                zIndex: 10,
-                maxHeight: '180px',
-                overflowY: 'auto',
-                margin: 0,
-                padding: '0.3rem 0',
-                listStyle: 'none',
-              }}>
+              <ClienteSuggestions>
                 {clientes
                   .filter((c: any) =>
                     c.nome.toLowerCase().includes(searchCliente.toLowerCase()) ||
                     (c.apelido && c.apelido.toLowerCase().includes(searchCliente.toLowerCase()))
                   )
                   .map((c: any) => (
-                    <li
+                    <ClienteSuggestionItem
                       key={c.id}
-                      style={{
-                        padding: '0.7rem 1.2rem',
-                        cursor: 'pointer',
-                        color: '#fff',
-                        borderBottom: '1px solid #333',
-                        background: clienteId === c.id ? '#3B82F6' : 'transparent',
-                      }}
+                      $selected={clienteId === c.id}
                       onMouseDown={() => {
                         setClienteId(c.id);
                         setSearchCliente(c.nome + (c.apelido ? ` (${c.apelido})` : ''));
@@ -140,15 +122,15 @@ const [servicos, setServicos] = useState<Servico[]>([]);
                       }}
                     >
                       {c.nome} {c.apelido && `(${c.apelido})`}
-                    </li>
+                    </ClienteSuggestionItem>
                   ))}
                 {clientes.filter((c: any) =>
                   c.nome.toLowerCase().includes(searchCliente.toLowerCase()) ||
                   (c.apelido && c.apelido.toLowerCase().includes(searchCliente.toLowerCase()))
                 ).length === 0 && (
-                    <li style={{ padding: '0.7rem 1.2rem', color: '#aaa' }}>Nenhum cliente encontrado</li>
+                    <ClienteSuggestionEmpty>Nenhum cliente encontrado</ClienteSuggestionEmpty>
                   )}
-              </ul>
+              </ClienteSuggestions>
             )}
           </FieldGroup>
           <FieldGroup>
@@ -190,7 +172,6 @@ const [servicos, setServicos] = useState<Servico[]>([]);
               value={hora}
               onChange={e => setHora(e.target.value)}
               required
-              style={{ paddingLeft: '2.8rem' }}
             >
               <option value="">Selecione o horário</option>
               {horarios.map(h => (
@@ -198,12 +179,10 @@ const [servicos, setServicos] = useState<Servico[]>([]);
               ))}
             </Select>
           </FieldGroup>
-          <Footer>
-            <AgendarButton type="submit">
-              {loading ? 'Agendando...' : 'Agendar'}
-            </AgendarButton>
-          </Footer>
-        </Form>
+          <AgendarButton type="submit">
+            {loading ? 'Agendando...' : 'Agendar'}
+          </AgendarButton>
+        </FormCard>
       </MainContent>
     </PageBg>
   );

@@ -43,6 +43,20 @@ router.post('/', async (req, res) => {
 });
 
 
+
+// Buscar cliente por id
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase.from('clientes').select('*').eq('id', id);
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  if (!data || data.length === 0) {
+    return res.status(404).json({ error: 'Cliente não encontrado' });
+  }
+  res.json(data[0]);
+});
+
 // Editar cliente
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
