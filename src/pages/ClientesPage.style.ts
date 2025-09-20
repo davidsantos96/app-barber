@@ -7,6 +7,11 @@ export const ClientesContainer = styled.div`
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   padding: 1.2rem;
   position: relative;
+  @media (max-width: 600px) {
+    max-width: 100%;
+    border-radius: 10px;
+    padding: 0.7rem 0.3rem;
+  }
 `;
 
 export const ClientesList = styled.div`
@@ -26,6 +31,10 @@ export const ClienteItemStyled = styled.div`
   transition: background 0.18s;
   &:hover {
     background: #2c2c2c;
+  }
+  @media (max-width: 600px) {
+    border-radius: 8px;
+    padding: 0.7rem 0.7rem;
   }
 `;
 export const PageBg = styled.div`
@@ -91,6 +100,11 @@ export const Avatar = styled.img`
   object-fit: cover;
   margin-right: 1.2rem;
   background: #222;
+  @media (max-width: 600px) {
+    width: 36px;
+    height: 36px;
+    margin-right: 0.7rem;
+  }
 `;
 
 export const ClienteInfo = styled.div`
@@ -104,12 +118,18 @@ export const ClienteNome = styled.span`
   color: #fff;
   font-size: 1.18rem;
   font-weight: 700;
+  @media (max-width: 600px) {
+    font-size: 1rem;
+  }
 `;
 
 export const ClienteTelefone = styled.span`
   color: #888;
   font-size: 1.05rem;
   margin-top: 2px;
+  @media (max-width: 600px) {
+    font-size: 0.9rem;
+  }
 `;
 
 export const Chevron = styled.div`
@@ -133,6 +153,12 @@ export const FloatingButton = styled.button`
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
   cursor: pointer;
   z-index: 2000;
+  @media (max-width: 600px) {
+    right: 1rem;
+    bottom: 1rem;
+    width: 44px;
+    height: 44px;
+  }
 `;
 
 import styled from 'styled-components';
@@ -154,6 +180,11 @@ export const ModalBox = styled.form`
   min-width: 320px;
   color: #fff;
   box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  @media (max-width: 600px) {
+    min-width: 90vw;
+    padding: 1rem;
+    border-radius: 8px;
+  }
 `;
 
 export const ModalTitle = styled.h3`

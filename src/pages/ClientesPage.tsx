@@ -111,6 +111,9 @@ const ClientesPage: React.FC = () => {
               <Avatar src={getAvatar(cliente.nome)} alt={cliente.nome} />
               <ClienteInfo>
                 <ClienteNome>{cliente.nome}</ClienteNome>
+                {cliente.apelido && (
+                  <span style={{ color: '#FFD700', fontSize: '0.98rem', fontWeight: 500 }}>{cliente.apelido}</span>
+                )}
                 <ClienteTelefone>{cliente.telefone}</ClienteTelefone>
               </ClienteInfo>
               <Chevron onClick={e => { e.stopPropagation(); openEditModal(cliente); }}>

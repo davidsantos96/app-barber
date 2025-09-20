@@ -83,10 +83,48 @@ const AgendamentoDetalhePage: React.FC = () => {
         </InfoItem>
       </InfoSection>
       <Actions>
-        <RemarcarButton>Remarcar</RemarcarButton>
-        <EditarButton>Editar</EditarButton>
+        <RemarcarButton onClick={async () => {
+          const novaData = prompt('Nova data (YYYY-MM-DD):', agendamento.data);
+          const novoHorario = prompt('Novo horário (HH:mm):', agendamento.horario);
+          if (novaData && novoHorario) {
+            try {
+              await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamento.id}`, {
+                data: novaData,
+                horario: novoHorario
+              });
+              alert('Agendamento remarcado!');
+              window.location.reload();
+            } catch (err: any) {
+              alert(err.response?.data?.error || 'Erro ao remarcar');
+            }
+          }
+        }}>Remarcar</RemarcarButton>
+        <EditarButton onClick={async () => {
+          const novoServico = prompt('Novo serviço:', agendamento.servico);
+          if (novoServico) {
+            try {
+              await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamento.id}`, {
+                servico: novoServico
+              });
+              alert('Serviço atualizado!');
+              window.location.reload();
+            } catch (err: any) {
+              alert(err.response?.data?.error || 'Erro ao editar');
+            }
+          }
+        }}>Editar</EditarButton>
       </Actions>
-      <CancelarButton>Cancelar Agendamento</CancelarButton>
+      <CancelarButton onClick={async () => {
+        if (window.confirm('Deseja cancelar este agendamento?')) {
+          try {
+            await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamento.id}`);
+            alert('Agendamento cancelado!');
+            window.location.reload();
+          } catch (err: any) {
+            alert(err.response?.data?.error || 'Erro ao cancelar');
+          }
+        }
+      }}>Cancelar Agendamento</CancelarButton>
     </PageBg>
   );
 };

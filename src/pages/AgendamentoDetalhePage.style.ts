@@ -7,6 +7,9 @@ export const PageBg = styled.div`
   font-family: 'Manrope', sans-serif;
   display: flex;
   flex-direction: column;
+  @media (max-width: 600px) {
+    font-size: 0.97rem;
+  }
 `;
 
 export const HeaderBar = styled.header`
@@ -14,6 +17,9 @@ export const HeaderBar = styled.header`
   align-items: center;
   padding: 2.2rem 0 1.2rem 0;
   position: relative;
+  @media (max-width: 600px) {
+    padding: 1.2rem 0 0.7rem 0;
+  }
 `;
 
 export const HeaderTitle = styled.h1`
@@ -23,6 +29,9 @@ export const HeaderTitle = styled.h1`
   text-align: center;
   margin: 0;
   flex: 1;
+  @media (max-width: 600px) {
+    font-size: 1.3rem;
+  }
 `;
 
 export const BackButton = styled.button`
@@ -35,6 +44,10 @@ export const BackButton = styled.button`
   color: #fff;
   font-size: 2rem;
   cursor: pointer;
+  @media (max-width: 600px) {
+    font-size: 1.3rem;
+    left: 0.7rem;
+  }
 `;
 
 export const ClienteSection = styled.section`
@@ -42,6 +55,12 @@ export const ClienteSection = styled.section`
   align-items: center;
   gap: 1.2rem;
   padding: 2rem 1.2rem 1.2rem 1.2rem;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 1.2rem 0.7rem 0.7rem 0.7rem;
+  }
 `;
 
 export const Avatar = styled.img`
@@ -50,6 +69,10 @@ export const Avatar = styled.img`
   border-radius: 50%;
   object-fit: cover;
   background: #232526;
+  @media (max-width: 600px) {
+    width: 54px;
+    height: 54px;
+  }
 `;
 
 export const ClienteNome = styled.h2`
@@ -57,6 +80,9 @@ export const ClienteNome = styled.h2`
   font-size: 1.35rem;
   font-weight: 700;
   margin: 0;
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 `;
 
 export const ClienteSub = styled.p`
@@ -71,12 +97,19 @@ export const InfoSection = styled.section`
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  @media (max-width: 600px) {
+    padding: 0.7rem;
+    gap: 0.7rem;
+  }
 `;
 
 export const InfoItem = styled.div`
   display: flex;
   align-items: center;
   gap: 1.2rem;
+  @media (max-width: 600px) {
+    gap: 0.7rem;
+  }
 `;
 
 export const InfoIcon = styled.div`
@@ -87,12 +120,19 @@ export const InfoIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  @media (max-width: 600px) {
+    width: 36px;
+    height: 36px;
+  }
 `;
 
 export const InfoLabel = styled.p`
   color: #b0b3b8;
   font-size: 1.05rem;
   margin: 0 0 0.2rem 0;
+  @media (max-width: 600px) {
+    font-size: 0.95rem;
+  }
 `;
 
 export const InfoValue = styled.p`
@@ -100,12 +140,20 @@ export const InfoValue = styled.p`
   font-size: 1.18rem;
   font-weight: 600;
   margin: 0;
+  @media (max-width: 600px) {
+    font-size: 1rem;
+  }
 `;
 
 export const Actions = styled.div`
   display: flex;
   gap: 1.2rem;
   padding: 2rem 1.2rem 0 1.2rem;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.2rem 0.7rem 0 0.7rem;
+  }
 `;
 
 export const RemarcarButton = styled.button`
@@ -122,6 +170,10 @@ export const RemarcarButton = styled.button`
   transition: background 0.2s;
   &:hover {
     background: #eab308;
+  }
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    padding: 0.7rem 0;
   }
 `;
 
@@ -140,6 +192,10 @@ export const EditarButton = styled.button`
   &:hover {
     background: #1746a2;
   }
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    padding: 0.7rem 0;
+  }
 `;
 
 export const CancelarButton = styled.button`
@@ -152,4 +208,8 @@ export const CancelarButton = styled.button`
   border: none;
   cursor: pointer;
   text-align: center;
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    padding: 0.7rem 0 0.3rem 0;
+  }
 `;

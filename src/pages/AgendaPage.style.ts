@@ -90,6 +90,13 @@ export const FormCard = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 1.6rem;
+	@media (max-width: 600px) {
+		max-width: 100%;
+		margin: 1.2rem auto 0 auto;
+		padding: 1.2rem 0.5rem 3.5rem 0.5rem;
+		border-radius: 12px;
+		gap: 1rem;
+	}
 `;
 
 export const FieldGroup = styled.div`
@@ -102,6 +109,11 @@ export const FieldGroup = styled.div`
 	border-radius: 16px;
 	box-sizing: border-box;
 	min-height: 56px;
+	@media (max-width: 600px) {
+		min-height: 44px;
+		border-radius: 10px;
+		margin-bottom: 1rem;
+	}
 `;
 
 export const IconLeft = styled.span`
@@ -113,6 +125,10 @@ export const IconLeft = styled.span`
 	transform: translateY(-50%);
 	color: #9CA3AF;
 	font-size: 1.7rem;
+	@media (max-width: 600px) {
+		font-size: 1.2rem;
+		left: 10px;
+	}
 `;
 
 export const Input = styled.input`
@@ -127,6 +143,11 @@ export const Input = styled.input`
 	&::placeholder {
 		color: #6c6c6c;
 		font-size: 1.13rem;
+	}
+	@media (max-width: 600px) {
+		font-size: 0.98rem;
+		padding: 0.7rem 0.7rem 0.7rem 2.1rem;
+		border-radius: 10px;
 	}
 `;
 
@@ -143,6 +164,11 @@ export const Select = styled.select`
 	&::placeholder {
 		color: #6c6c6c;
 		font-size: 1.13rem;
+	}
+	@media (max-width: 600px) {
+		font-size: 0.98rem;
+		padding: 0.7rem 0.7rem 0.7rem 2.1rem;
+		border-radius: 10px;
 	}
 `;
 
@@ -161,6 +187,13 @@ export const AgendarButton = styled.button`
 	transition: background 0.2s;
 	&:hover {
 		background: #357ae8;
+	}
+	@media (max-width: 600px) {
+		height: 38px;
+		font-size: 1rem;
+		margin-top: 1.2rem;
+		margin-bottom: 0.7rem;
+		border-radius: 8px;
 	}
 `;
 

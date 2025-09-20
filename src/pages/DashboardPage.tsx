@@ -34,6 +34,7 @@ interface Agendamento {
   servico: string;
   data: string;
   horario: string;
+  status: string;
 }
 
 const DashboardPage: React.FC = () => {
@@ -41,29 +42,45 @@ const DashboardPage: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const navigate = useNavigate();
 
+  const fetchAgendamentos = async () => {
+    try {
+      const agRes = await axios.get('https://app-barber-hmm9.onrender.com/agendamentos');
+      setAgendamentos(agRes.data);
+    } catch (err) {}
+  };
+  const fetchClientes = async () => {
+    try {
+      const clRes = await axios.get('https://app-barber-hmm9.onrender.com/clientes');
+      setClientes(clRes.data);
+    } catch (err) {}
+  };
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [agRes, clRes] = await Promise.all([
-          axios.get('https://app-barber-hmm9.onrender.com/agendamentos'),
-          axios.get('https://app-barber-hmm9.onrender.com/clientes')
-        ]);
-        setAgendamentos(agRes.data);
-        setClientes(clRes.data);
-      } catch (err) {
-        // erro de fetch
-      }
-    }
-    fetchData();
+    fetchAgendamentos();
+    fetchClientes();
   }, []);
 
   // Agrupa agendamentos por data
   const hojeISO = new Date().toISOString().slice(0, 10);
   const amanhaISO = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-  const agHoje = agendamentos.filter(a => a.data === hojeISO);
-  const agAmanha = agendamentos.filter(a => a.data === amanhaISO);
+  const agHoje = agendamentos.filter(a => a.data === hojeISO && a.status !== 'cancelado');
+  const agAmanha = agendamentos.filter(a => a.data === amanhaISO && a.status !== 'cancelado');
 
   const getCliente = (id: string) => clientes.find(c => c.id === id);
+
+  async function handleCardClick(a: Agendamento) {
+    navigate(`/agendamento/${a.id}`);
+  }
+
+  async function handleCancel(a: Agendamento) {
+    if (window.confirm('Deseja cancelar este agendamento?')) {
+      try {
+        await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${a.id}`);
+        await fetchAgendamentos();
+      } catch (err) {
+        alert('Erro ao cancelar agendamento');
+      }
+    }
+  }
 
   function renderCards(ags: Agendamento[]) {
     return (
@@ -71,13 +88,14 @@ const DashboardPage: React.FC = () => {
         {ags.map(a => {
           const cliente = getCliente(a.clienteId);
           return (
-            <Card key={a.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/agendamento/${a.id}`)}>
+            <Card key={a.id} style={{ cursor: 'pointer', position: 'relative' }}>
               <Avatar src={cliente?.avatarUrl || '/icon1.png'} alt={cliente?.nome || 'Cliente'} />
-              <CardInfo>
+              <CardInfo onClick={() => handleCardClick(a)}>
                 <ServiceName>{a.servico}</ServiceName>
                 <ServiceTime>{a.horario}</ServiceTime>
                 <ServiceTime style={{ color: '#fff', fontWeight: 500 }}>{cliente?.nome || 'Cliente'}</ServiceTime>
               </CardInfo>
+              <button style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', color: '#ff3b3b', fontWeight: 700, fontSize: 18, cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleCancel(a); }}>✕</button>
             </Card>
           );
         })}
@@ -105,7 +123,7 @@ const DashboardPage: React.FC = () => {
         <NavItem href="/dashboard" className="active"><FiCalendar size={22}/> Agendamentos</NavItem>
         <NavItem href="/clientes"><FiUser size={22}/> Clientes</NavItem>
         <NavItem href="/servicos"><FiScissors size={22}/> Serviços</NavItem>
-        <NavItem href="/configuracoes"><FiSettings size={22}/> Configurações</NavItem>
+        <NavItem style={{ pointerEvents: 'none', opacity: 0.5, cursor: 'not-allowed' }} href="#"><FiSettings size={22}/> Configurações</NavItem>
       </FooterNav>
     </DashboardContainer>
   );
