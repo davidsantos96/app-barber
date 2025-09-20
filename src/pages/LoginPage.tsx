@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { toast } from 'react-toastify';
-import { LoginWrapper, LoginContainer, LoginTitle, LoginForm, LoginField, LoginInput, LoginButton } from './LoginPage.style';
+import { LoginWrapper, LoginContainer, LoginTitle, LoginSubtitle, LoginForm, LoginField, LoginInput, LoginButton, ForgotPassword } from './LoginPage.style';
 
 
 
@@ -26,17 +26,32 @@ const LoginPage: React.FC = () => {
   return (
     <LoginWrapper>
       <LoginContainer>
-        <LoginTitle>Login / Acesso rápido</LoginTitle>
+  <LoginTitle>Login</LoginTitle>
+  <LoginSubtitle>App Barber</LoginSubtitle>
         <LoginForm onSubmit={handleSubmit}>
           <LoginField>
-            <label>Usuário</label>
-            <LoginInput value={user} onChange={e => setUser(e.target.value)} required />
+            <label htmlFor="usuario" style={{ display: 'none' }}>Usuário</label>
+            <LoginInput
+              id="usuario"
+              type="text"
+              placeholder="Usuário"
+              value={user}
+              onChange={e => setUser(e.target.value)}
+              required
+            />
           </LoginField>
           <LoginField>
-            <label>Senha</label>
-            <LoginInput type="password" value={pass} onChange={e => setPass(e.target.value)} required />
+            <label htmlFor="senha" style={{ display: 'none' }}>Senha</label>
+            <LoginInput
+              id="senha"
+              type="password"
+              placeholder="Senha"
+              value={pass}
+              onChange={e => setPass(e.target.value)}
+              required
+            />
           </LoginField>
-          <LoginButton type="submit">Entrar</LoginButton>
+          <LoginButton type="submit">Log in</LoginButton>
         </LoginForm>
       </LoginContainer>
     </LoginWrapper>

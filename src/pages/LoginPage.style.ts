@@ -1,5 +1,6 @@
 export const LoginWrapper = styled.div`
   min-height: 100vh;
+  background: #121212;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,12 +44,33 @@ export const LoginButton = styled.button`
   }
 `;
 import styled from 'styled-components';
+export const LoginSubtitle = styled.p`
+  color: #e5e7eb;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-top: 8px;
+  margin-bottom: 32px;
+`;
+
+export const ForgotPassword = styled.a`
+  display: block;
+  text-align: center;
+  color: #3b82f6;
+  font-size: 1rem;
+  margin-top: 24px;
+  text-decoration: none;
+  font-weight: 500;
+  &:hover {
+    color: #60a5fa;
+    text-decoration: underline;
+  }
+`;
 
 export const LoginContainer = styled.div`
   max-width: 350px;
   margin: 5rem auto;
   background: #232526;
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   padding: 2rem;
   color: #fff;

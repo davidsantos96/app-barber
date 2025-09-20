@@ -9,6 +9,8 @@ const router = Router();
 interface Agendamento {
   id: string;
   clienteId: string;
+  servicoId: string;
+  servico: string;
   data: string; // formato ISO
   horario: string; // HH:mm
   status: 'confirmado' | 'cancelado' | 'concluido';
@@ -25,11 +27,24 @@ router.get('/', async (req, res) => {
   res.json(data ?? []);
 });
 
+// Buscar agendamento por id
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase.from('agendamentos').select('*').eq('id', id);
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  if (!data || data.length === 0) {
+    return res.status(404).json({ error: 'Agendamento não encontrado' });
+  }
+  res.json(data[0]);
+});
+
 
 // Criar agendamento
 router.post('/', async (req, res) => {
-  const { clienteId, data: dataAgendamento, horario } = req.body;
-  if (!clienteId || !dataAgendamento || !horario) {
+  const { clienteId, servicoId, servico, data: dataAgendamento, horario } = req.body;
+  if (!clienteId || !servicoId || !servico || !dataAgendamento || !horario) {
     return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
   }
   // Verifica sobreposição de horários
@@ -48,6 +63,8 @@ router.post('/', async (req, res) => {
   const novoAgendamento: Agendamento = {
     id: uuidv4(),
     clienteId,
+    servicoId,
+    servico,
     data: dataAgendamento,
     horario,
     status: 'confirmado'

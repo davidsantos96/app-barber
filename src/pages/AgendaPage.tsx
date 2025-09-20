@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import styled from 'styled-components';
-import { AgendaContainer, AgendaTitle } from './AgendaPage.style';
+import { PageBg, HeaderBar, BackButton, HeaderTitle, MainContent, Footer } from './AgendaPage.style';
 
 interface Cliente {
   id: string;
@@ -260,19 +260,19 @@ const AgendaPage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <AgendaContainer>
-        <AgendaTitle>Agenda</AgendaTitle>
-        <AppointmentForm onSuccess={fetchAgendamentos} />
-        <SubTitle>Agendamentos</SubTitle>
-        <List>
-          {agendamentos.map(a => (
-            <ListItem key={a.id}>
-              <span>{a.data} {a.horario} - Cliente: {getClienteNome(a.clienteId)}</span>
-              <CancelButton onClick={() => cancelar(a.id)}>Cancelar</CancelButton>
-            </ListItem>
-          ))}
-        </List>
-  </AgendaContainer>
+      <PageBg>
+        <HeaderBar>
+          <BackButton onClick={() => window.history.back()}>
+            &#8592;
+          </BackButton>
+          <HeaderTitle>Novo Agendamento</HeaderTitle>
+          <div style={{ width: 32 }} />
+        </HeaderBar>
+        <MainContent>
+          <AppointmentForm onSuccess={fetchAgendamentos} />
+        </MainContent>
+        <Footer />
+      </PageBg>
     </>
   );
 };

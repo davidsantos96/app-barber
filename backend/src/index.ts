@@ -4,6 +4,7 @@ import clientesRouter from './routes/clientes';
 import agendamentosRouter from './routes/agendamentos';
 import disponibilidadeRouter from './routes/disponibilidade';
 import dashboardRouter from './routes/dashboard';
+import servicosRouter from './routes/servicos';
 
 const app = express();
 // Permitir requisições de qualquer origem (CORS)
@@ -20,6 +21,7 @@ app.use('/clientes', clientesRouter);
 app.use('/agendamentos', agendamentosRouter);
 app.use('/disponibilidade', disponibilidadeRouter);
 app.use('/dashboard', dashboardRouter);
+app.use('/servicos', servicosRouter);
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);

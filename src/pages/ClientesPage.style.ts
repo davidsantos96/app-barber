@@ -1,7 +1,6 @@
 
 import styled from 'styled-components';
 
-
 export const ModalBg = styled.div`
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -64,6 +63,7 @@ export const ModalCancelButton = styled.button`
   border: none;
   cursor: pointer;
 `;
+
 export const EditButton = styled.button`
   background: #FFD700;
   color: #232526;
@@ -88,6 +88,7 @@ export const EditButton = styled.button`
     border-radius: 7px;
   }
 `;
+
 export const SubTitle = styled.h3`
   font-size: 1.2rem;
   margin-top: 2rem;
@@ -136,7 +137,6 @@ export const AgendarButton = styled.button`
     border-radius: 7px;
   }
 `;
-
 
 export const ClientesContainer = styled.div`
   max-width: 800px;

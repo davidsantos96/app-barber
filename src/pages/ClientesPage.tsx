@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ClientForm from '../components/ClientForm';
 import Navbar from '../components/Navbar';
-import { ClientesContainer, ClientesTitle, SubTitle, ClientesList, ClienteItem, AgendarButton, EditButton, ModalBg, ModalBox, ModalTitle, ModalInput, ModalActions, ModalButton, ModalCancelButton } from './ClientesPage.style';
+import { ClientesContainer, ClientesTitle, SubTitle, ClientesList, ClienteItem, ModalBg, ModalBox, ModalTitle, ModalInput, ModalActions, ModalButton, ModalCancelButton } from './ClientesPage.style';
+import styled from 'styled-components';
+import { FiSearch, FiChevronRight, FiPlus } from 'react-icons/fi';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -20,6 +22,7 @@ interface Cliente {
 
 const ClientesPage: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [search, setSearch] = useState('');
   const [editCliente, setEditCliente] = useState<Cliente | null>(null);
   const [editNome, setEditNome] = useState('');
   const [editApelido, setEditApelido] = useState('');
@@ -94,72 +97,221 @@ const ClientesPage: React.FC = () => {
     }
   };
 
+  // Filtro de clientes
+  const filteredClientes = clientes.filter(cliente =>
+    cliente.nome.toLowerCase().includes(search.toLowerCase()) ||
+    cliente.telefone.includes(search)
+  );
+
   return (
-    <>
-      <Navbar />
-      <ClientesContainer>
-        <ClientesTitle>Clientes</ClientesTitle>
-        <p>Gerencie seus clientes cadastrados.</p>
-        <ClientForm onSuccess={fetchClientes} />
-        <SubTitle>Lista de Clientes</SubTitle>
+    <PageBg>
+      <HeaderBar>
+        <BackButton onClick={() => navigate(-1)}>
+          &#8592;
+        </BackButton>
+        <HeaderTitle>Clientes</HeaderTitle>
+      </HeaderBar>
+      <ClientesContainer style={{ background: 'transparent', boxShadow: 'none', padding: 0, maxWidth: '100%' }}>
+        <SearchBox>
+          <FiSearch size={22} color="#888" style={{ marginRight: 8 }} />
+          <SearchInput
+            placeholder="Buscar clientes"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </SearchBox>
         <ClientesList>
-          {clientes.map(cliente => (
-            <ClienteItem key={cliente.id}>
-              <span>{cliente.nome} {cliente.apelido && `(${cliente.apelido})`} - {cliente.telefone}</span>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <AgendarButton onClick={() => handleAgendar(cliente.id)}>Agendar</AgendarButton>
-                <EditButton onClick={() => openEditModal(cliente)}>Editar</EditButton>
-              </div>
-            </ClienteItem>
+          {filteredClientes.map(cliente => (
+            <ClienteItemStyled key={cliente.id} onClick={() => openEditModal(cliente)}>
+              <Avatar src={getAvatar(cliente.nome)} alt={cliente.nome} />
+              <ClienteInfo>
+                <ClienteNome>{cliente.nome}</ClienteNome>
+                <ClienteTelefone>{cliente.telefone}</ClienteTelefone>
+              </ClienteInfo>
+              <Chevron onClick={e => { e.stopPropagation(); openEditModal(cliente); }}>
+                <FiChevronRight size={26} color="#888" />
+              </Chevron>
+            </ClienteItemStyled>
           ))}
         </ClientesList>
-
-        {/* Modal de edição */}
-        {editCliente && (
-          <ModalBg>
-            <ModalBox onSubmit={handleEditSubmit}>
-              <ModalTitle>Editar Cliente</ModalTitle>
-              <div style={{ marginBottom: '1.2rem' }}>
-                <label>Nome*</label>
-                <ModalInput
-                  value={editNome}
-                  onChange={e => setEditNome(e.target.value)}
-                  required
-                />
-              </div>
-              <div style={{ marginBottom: '1.2rem' }}>
-                <label>Apelido</label>
-                <ModalInput
-                  value={editApelido}
-                  onChange={e => setEditApelido(e.target.value)}
-                />
-              </div>
-              <div style={{ marginBottom: '1.2rem' }}>
-                <label>Telefone*</label>
-                <ModalInput
-                  type="tel"
-                  value={editTelefone}
-                  onChange={e => setEditTelefone(formatTelefone(e.target.value))}
-                  onPaste={e => {
-                    e.preventDefault();
-                    const pasted = e.clipboardData.getData('Text');
-                    setEditTelefone(formatTelefone(pasted));
-                  }}
-                  placeholder="(11)91234-5678"
-                  maxLength={15}
-                  required
-                />
-              </div>
-              <ModalActions>
-                <ModalCancelButton type="button" onClick={closeEditModal}>Cancelar</ModalCancelButton>
-                <ModalButton type="submit" disabled={editLoading}>{editLoading ? 'Salvando...' : 'Salvar'}</ModalButton>
-              </ModalActions>
-            </ModalBox>
-          </ModalBg>
-        )}
+        <FloatingButton onClick={() => navigate('/novo-cliente')}>
+          <FiPlus size={32} color="#232526" />
+        </FloatingButton>
       </ClientesContainer>
-    </>
+
+      {/* Modal de edição permanece igual */}
+      {editCliente && (
+        <ModalBg>
+          <ModalBox onSubmit={handleEditSubmit}>
+            <ModalTitle>Editar Cliente</ModalTitle>
+            <div style={{ marginBottom: '1.2rem' }}>
+              <label>Nome*</label>
+              <ModalInput
+                value={editNome}
+                onChange={e => setEditNome(e.target.value)}
+                required
+              />
+            </div>
+            <div style={{ marginBottom: '1.2rem' }}>
+              <label>Apelido</label>
+              <ModalInput
+                value={editApelido}
+                onChange={e => setEditApelido(e.target.value)}
+              />
+            </div>
+            <div style={{ marginBottom: '1.2rem' }}>
+              <label>Telefone*</label>
+              <ModalInput
+                type="tel"
+                value={editTelefone}
+                onChange={e => setEditTelefone(formatTelefone(e.target.value))}
+                onPaste={e => {
+                  e.preventDefault();
+                  const pasted = e.clipboardData.getData('Text');
+                  setEditTelefone(formatTelefone(pasted));
+                }}
+                placeholder="(11)91234-5678"
+                maxLength={15}
+                required
+              />
+            </div>
+            <ModalActions>
+              <ModalCancelButton type="button" onClick={closeEditModal}>Cancelar</ModalCancelButton>
+              <ModalButton type="submit" disabled={editLoading}>{editLoading ? 'Salvando...' : 'Salvar'}</ModalButton>
+            </ModalActions>
+          </ModalBox>
+        </ModalBg>
+      )}
+    </PageBg>
   );
 };
+
+
+// Styled Components extras para layout mobile
+const PageBg = styled.div`
+  min-height: 100vh;
+  background: #000;
+  position: relative;
+`;
+
+const HeaderBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.2rem 0 1.2rem 0;
+  position: relative;
+`;
+
+const HeaderTitle = styled.h1`
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+`;
+
+const BackButton = styled.button`
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+`;
+
+const SearchBox = styled.div`
+  display: flex;
+  align-items: center;
+  background: #191919;
+  border-radius: 16px;
+  padding: 0.7rem 1.2rem;
+  margin: 0 1.2rem 1.2rem 1.2rem;
+`;
+
+const SearchInput = styled.input`
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.1rem;
+  flex: 1;
+  outline: none;
+  &::placeholder {
+    color: #888;
+    font-size: 1.1rem;
+  }
+`;
+
+const ClienteItemStyled = styled.li`
+  display: flex;
+  align-items: center;
+  padding: 1.1rem 1.2rem;
+  border-bottom: 1px solid #222;
+  background: transparent;
+  cursor: pointer;
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const Avatar = styled.img`
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1.2rem;
+  background: #222;
+`;
+
+const ClienteInfo = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const ClienteNome = styled.span`
+  color: #fff;
+  font-size: 1.18rem;
+  font-weight: 700;
+`;
+
+const ClienteTelefone = styled.span`
+  color: #888;
+  font-size: 1.05rem;
+  margin-top: 2px;
+`;
+
+const Chevron = styled.div`
+  margin-left: 1.2rem;
+  display: flex;
+  align-items: center;
+`;
+
+const FloatingButton = styled.button`
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #FFD700;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  cursor: pointer;
+  z-index: 2000;
+`;
+
+// Função para gerar avatar (pode ser ajustada para usar imagens reais)
+function getAvatar(nome: string) {
+  // Exemplo: retorna um avatar padrão por inicial
+  // Substitua por imagens reais se desejar
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=222&color=fff&size=128`;
+}
 
 export default ClientesPage;
