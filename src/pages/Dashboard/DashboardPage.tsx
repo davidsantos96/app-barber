@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import {
   DashboardContainer,
   Header,
@@ -18,54 +17,19 @@ import {
 } from './DashboardPage.style';
 import { FiPlus, FiUser, FiScissors, FiSettings, FiCalendar } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-
-// ...existing code...
-// ...existing code...
-
-interface Cliente {
-  id: string;
-  nome: string;
-  avatarUrl?: string;
-}
-
-interface Agendamento {
-  id: string;
-  clienteId: string;
-  servico: string;
-  data: string;
-  horario: string;
-  status: string;
-}
+import { useAgendamentos, useData, type Agendamento } from '../../contexts';
 
 const DashboardPage: React.FC = () => {
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
-  const [clientes, setClientes] = useState<Cliente[]>([]);
   const navigate = useNavigate();
-
-  const fetchAgendamentos = async () => {
-    try {
-      const agRes = await axios.get('https://app-barber-hmm9.onrender.com/agendamentos');
-      setAgendamentos(agRes.data);
-    } catch (err) {}
-  };
-  const fetchClientes = async () => {
-    try {
-      const clRes = await axios.get('https://app-barber-hmm9.onrender.com/clientes');
-      setClientes(clRes.data);
-    } catch (err) {}
-  };
-  useEffect(() => {
-    fetchAgendamentos();
-    fetchClientes();
-  }, []);
+  const { getAgendamentosPorData, cancel } = useAgendamentos();
+  const { getClienteById } = useData();
 
   // Agrupa agendamentos por data
   const hojeISO = new Date().toISOString().slice(0, 10);
   const amanhaISO = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-  const agHoje = agendamentos.filter(a => a.data === hojeISO && a.status !== 'cancelado');
-  const agAmanha = agendamentos.filter(a => a.data === amanhaISO && a.status !== 'cancelado');
-
-  const getCliente = (id: string) => clientes.find(c => c.id === id);
+  
+  const agHoje = getAgendamentosPorData(hojeISO);
+  const agAmanha = getAgendamentosPorData(amanhaISO);
 
   async function handleCardClick(a: Agendamento) {
     navigate(`/agendamento/${a.id}`);
@@ -74,8 +38,7 @@ const DashboardPage: React.FC = () => {
   async function handleCancel(a: Agendamento) {
     if (window.confirm('Deseja cancelar este agendamento?')) {
       try {
-        await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${a.id}`);
-        await fetchAgendamentos();
+        await cancel(a.id);
       } catch (err) {
         alert('Erro ao cancelar agendamento');
       }
@@ -86,7 +49,7 @@ const DashboardPage: React.FC = () => {
     return (
       <CardList>
         {ags.map(a => {
-          const cliente = getCliente(a.clienteId);
+          const cliente = getClienteById(a.clienteId);
           return (
             <Card key={a.id} style={{ cursor: 'pointer', position: 'relative' }}>
               <Avatar src={cliente?.avatarUrl || '/icon1.png'} alt={cliente?.nome || 'Cliente'} />

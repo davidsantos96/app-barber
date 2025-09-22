@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiChevronRight, FiPlus } from 'react-icons/fi';
 import {
   PageBg, HeaderBar, HeaderTitle, BackButton, SearchBox, SearchInput, ClientesContainer, ClientesList, ClienteItemStyled, Avatar, ClienteInfo, ClienteNome, ClienteTelefone, Chevron, FloatingButton, ModalBg, ModalBox, ModalTitle, ModalInput, ModalActions, ModalButton, ModalCancelButton
 } from './ClientesPage.style';
-
-interface Cliente {
-  id: string;
-  nome: string;
-  apelido?: string;
-  telefone: string;
-}
+import { useData, type Cliente } from '../../contexts';
 
 const ClientesPage: React.FC = () => {
-  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [search, setSearch] = useState('');
   const [editCliente, setEditCliente] = useState<Cliente | null>(null);
   const [editNome, setEditNome] = useState('');
@@ -22,11 +14,7 @@ const ClientesPage: React.FC = () => {
   const [editTelefone, setEditTelefone] = useState('');
   const [editLoading, setEditLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes')
-      .then(res => setClientes(res.data));
-  }, []);
+  const { clientes, updateCliente } = useData();
 
   // Função para abrir modal de edição
   const openEditModal = (cliente: Cliente) => {
@@ -59,17 +47,12 @@ const ClientesPage: React.FC = () => {
     }
     setEditLoading(true);
     try {
-      await axios.put(`https://app-barber-hmm9.onrender.com/clientes/${editCliente?.id}`,
-        {
-          nome: editNome,
-          apelido: editApelido,
-          telefone: editTelefone
-        }
-      );
+      await updateCliente(editCliente!.id, {
+        nome: editNome,
+        apelido: editApelido,
+        telefone: editTelefone
+      });
       closeEditModal();
-      // Atualiza lista após edição
-      axios.get<Cliente[]>('https://app-barber-hmm9.onrender.com/clientes')
-        .then(res => setClientes(res.data));
     } catch (err: any) {
       alert(err.response?.data?.error || 'Erro ao editar cliente');
     } finally {

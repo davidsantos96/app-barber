@@ -1,7 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
   PageBg,
   HeaderBar,
@@ -21,11 +20,14 @@ import {
 } from '../AgendaPage.style';
 import { FiUser, FiScissors, FiCalendar, FiClock } from 'react-icons/fi';
 import { useRef } from 'react';
+import { useData, useAgendamentos } from '../../../contexts';
 
 const NovoAgendamentoPage: React.FC = () => {
   const dateInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const [clientes, setClientes] = useState([]);
+  const { clientes, servicos } = useData();
+  const { create } = useAgendamentos();
+  
   // Removido duplicidade de clienteId/setClienteId
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [clienteId, setClienteId] = useState('');
@@ -43,20 +45,6 @@ const NovoAgendamentoPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchCliente, setSearchCliente] = useState('');
 
-
-  interface Servico {
-    id: string;
-    nome: string;
-    preco: number;
-  }
-  const [servicos, setServicos] = useState<Servico[]>([]);
-
-
-  useEffect(() => {
-    axios.get('https://app-barber-hmm9.onrender.com/clientes').then(res => setClientes(res.data));
-    axios.get('https://app-barber-hmm9.onrender.com/servicos').then(res => setServicos(res.data));
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clienteId || !servicoId || !data || !hora) {
@@ -65,7 +53,7 @@ const NovoAgendamentoPage: React.FC = () => {
     }
     setLoading(true);
     try {
-      await axios.post('https://app-barber-hmm9.onrender.com/agendamentos', {
+      await create({
         clienteId,
         servicoId,
         servico: servicoNome,
@@ -107,11 +95,11 @@ const NovoAgendamentoPage: React.FC = () => {
             {showSuggestions && searchCliente.trim() && (
               <ClienteSuggestions>
                 {clientes
-                  .filter((c: any) =>
+                  .filter((c) =>
                     c.nome.toLowerCase().includes(searchCliente.toLowerCase()) ||
                     (c.apelido && c.apelido.toLowerCase().includes(searchCliente.toLowerCase()))
                   )
-                  .map((c: any) => (
+                  .map((c) => (
                     <ClienteSuggestionItem
                       key={c.id}
                       $selected={clienteId === c.id}
@@ -124,7 +112,7 @@ const NovoAgendamentoPage: React.FC = () => {
                       {c.nome} {c.apelido && `(${c.apelido})`}
                     </ClienteSuggestionItem>
                   ))}
-                {clientes.filter((c: any) =>
+                {clientes.filter((c) =>
                   c.nome.toLowerCase().includes(searchCliente.toLowerCase()) ||
                   (c.apelido && c.apelido.toLowerCase().includes(searchCliente.toLowerCase()))
                 ).length === 0 && (
@@ -145,7 +133,7 @@ const NovoAgendamentoPage: React.FC = () => {
               required
             >
               <option value="">Selecione o Serviço</option>
-              {servicos.map((s: any) => (
+              {servicos.map((s) => (
                 <option key={s.id} value={s.id}>{s.nome}</option>
               ))}
             </Select>
