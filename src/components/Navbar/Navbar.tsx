@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth';
+import { useAuth } from '../../auth';
 import { NavbarContainer, Brand, HamburgerMenu, NavLinks, StyledLink, LogoutButton } from './Navbar.style';
 
 const Navbar: React.FC = () => {

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Navbar from '../components/Navbar';
+import Navbar from '../../components/Navbar/Navbar';
 import { PageBg, HeaderBar, BackButton, HeaderTitle, MainContent } from './AgendaPage.style';
 import { Input, Select, Button, Form, Field, Label, ErrorMsg, SuccessMsg, Footer } from './AgendaPage.style';
 

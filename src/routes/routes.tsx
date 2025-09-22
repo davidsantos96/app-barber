@@ -1,14 +1,14 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from '../pages/LoginPage';
-import DashboardPage from '../pages/DashboardPage';
-import AgendaPage from '../pages/AgendaPage';
-import NovoAgendamentoPage from '../pages/NovoAgendamentoPage';
-import ClientesPage from '../pages/ClientesPage';
-import NovoClientePage from '../pages/NovoClientePage';
-import DisponibilidadePage from '../pages/DisponibilidadePage';
-import ServicosPage from '../pages/ServicosPage';
-import AgendamentoDetalhePage from '../pages/AgendamentoDetalhePage';
+import LoginPage from '../pages/Login/LoginPage';
+import DashboardPage from '../pages/Dashboard/DashboardPage';
+import AgendaPage from '../pages/Agendamento/AgendaPage';
+import NovoAgendamentoPage from '../pages/Agendamento/NovoAgendamento/NovoAgendamentoPage';
+import ClientesPage from '../pages/Clientes/ClientesPage';
+import NovoClientePage from '../pages/Clientes/NovoCliente/NovoClientePage';
+import DisponibilidadePage from '../pages/Disponibilidade/DisponibilidadePage';
+import ServicosPage from '../pages/Servicos/ServicosPage';
+import AgendamentoDetalhePage from '../pages/Agendamento/AgendamentoDetalhePage';
 import { useAuth } from '../auth';
 
 const PrivateRoute = ({ element }: { element: React.JSX.Element }) => {

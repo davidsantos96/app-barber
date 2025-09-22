@@ -18,7 +18,7 @@ import {
   ClienteSuggestionItem,
   ClienteSuggestionEmpty,
 
-} from './AgendaPage.style';
+} from '../AgendaPage.style';
 import { FiUser, FiScissors, FiCalendar, FiClock } from 'react-icons/fi';
 import { useRef } from 'react';
 
