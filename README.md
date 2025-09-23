@@ -22,7 +22,7 @@ Currently, two official plugins are available:
     Sistema completo de gerenciamento para barbearias com interface moderna e responsiva
   </p>
 
-  [🚀 Demo Live](https://app-barber-frontend.vercel.app) • [📱 Screenshots](#-screenshots) • [🛠️ Instalação](#️-instalação)
+  [🚀 Demo Live](https://app-barber-six.vercel.app/) • [📱 Screenshots](#-screenshots) • [🛠️ Instalação](#️-instalação)
 </div>
 
 ---
