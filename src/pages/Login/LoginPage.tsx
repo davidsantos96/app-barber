@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth';
 import { toast } from 'react-toastify';
-import { LoginWrapper, LoginContainer, LoginTitle, LoginSubtitle, LoginForm, LoginField, LoginInput, LoginButton } from './LoginPage.style';
+import { LoginWrapper, LoginContainer, LoginTitle, LoginSubtitle, LoginForm, LoginField, LoginInput, LoginButton, LoginLogo } from './LoginPage.style';
 
 
 
@@ -35,9 +35,12 @@ const LoginPage: React.FC = () => {
   return (
     <LoginWrapper>
       <LoginContainer>
-  <LoginTitle>Login</LoginTitle>
-  <LoginSubtitle>App Barber</LoginSubtitle>
-  
+        <LoginTitle>
+          Login
+        </LoginTitle>
+        <LoginLogo src="/logo1.png" alt="App Logo" />
+        
+        
         <LoginForm onSubmit={handleSubmit}>
           <LoginField>
             <label htmlFor="usuario" style={{ display: 'none' }}>Usuário</label>

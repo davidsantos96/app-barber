@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 export const LoginWrapper = styled.div`
   min-height: 100vh;
   background: #121212;
@@ -43,7 +45,6 @@ export const LoginButton = styled.button`
     background: #232526;
   }
 `;
-import styled from 'styled-components';
 export const LoginSubtitle = styled.p`
   color: #e5e7eb;
   text-align: center;
@@ -80,4 +81,29 @@ export const LoginTitle = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 1.2rem;
   text-align: center;
+`;
+
+export const TitleIcon = styled.img`
+  width: 28px;
+  height: 28px;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+`;
+
+export const LoginLogo = styled.img`
+  width: 128px;
+  height: 128px;
+  display: block;
+  margin: 8px auto 20px auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  @media (max-width: 600px) {
+    width: 96px;
+    height: 96px;
+    margin: 6px auto 16px auto;
+  }
 `;
