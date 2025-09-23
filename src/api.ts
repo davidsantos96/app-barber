@@ -1,7 +1,18 @@
 import axios from 'axios';
 
+// Configuração da URL base da API
+const getBaseURL = () => {
+  // Em desenvolvimento, verifica se o backend local está disponível
+  const isDevelopment = import.meta.env.DEV;
+  const localBackendURL = 'http://localhost:3001';
+  const productionBackendURL = 'https://app-barber-hmm9.onrender.com';
+  
+  // Se estiver em desenvolvimento, use o backend local, senão use o de produção
+  return isDevelopment ? localBackendURL : productionBackendURL;
+};
+
 const api = axios.create({
-  baseURL: 'https://app-barber-hmm9.onrender.com',
+  baseURL: getBaseURL(),
 });
 
 // Interceptor para adicionar o token de autenticação em cada requisição
