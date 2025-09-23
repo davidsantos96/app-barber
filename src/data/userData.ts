@@ -27,15 +27,15 @@ export const USERS: User[] = [
   {
     id: 'user-3',
     username: 'alvaro',
-    password: 'demo123',
+    password: 'barbeiro@10',
     name: 'Álvaro Barbeiro',
     role: 'barbeiro',
     barbearia: 'Barbearia do Álvaro'
   },
   {
     id: 'user-4',
-    username: 'carlos', 
-    password: 'demo123',
+    username: 'barber2', 
+    password: '123',
     name: 'Carlos Barbeiro',
     role: 'barbeiro',
     barbearia: 'Barbearia do Carlos'
