@@ -12,6 +12,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from './auth';
+import DemoNotification from './components/DemoNotification';
 
 
 
@@ -22,6 +23,7 @@ function App() {
   return (
     <AuthProvider>
       <GlobalStyle />
+      <DemoNotification />
       <Router>
         <RoutesConfig />
       </Router>

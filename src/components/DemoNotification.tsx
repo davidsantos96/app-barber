@@ -17,12 +17,15 @@ const DemoBanner = styled.div`
 `;
 
 const DemoNotification: React.FC = () => {
-  // Só mostrar em produção
-  if (import.meta.env.VITE_ENV !== 'production') return null;
+  // Verificar se está no modo demo
+  const isDemoMode = localStorage.getItem('user') === 'demo';
+  
+  // Só mostrar quando estiver logado como demo
+  if (!isDemoMode) return null;
   
   return (
     <DemoBanner>
-      🚀 Este é um projeto de demonstração - Explore à vontade! 
+      🎯 Modo Demonstração - Dados fictícios para apresentação
       <a 
         href="https://github.com/davidsantos96/app-barber" 
         style={{ color: 'white', marginLeft: '8px', textDecoration: 'underline' }}

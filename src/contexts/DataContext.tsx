@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useApi } from './ApiContext';
+import { DEMO_DATA, isDemoUser } from '../data/demoData';
 
 export interface Cliente {
   id: string;
@@ -36,6 +37,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshClientes = useCallback(async () => {
     try {
+      // Se for usuário demo, usar dados fictícios
+      if (isDemoUser()) {
+        setClientes(DEMO_DATA.clientes);
+        return;
+      }
+      
       const { data } = await api.get<Cliente[]>('/clientes');
       setClientes(data);
     } catch (error) {
@@ -45,6 +52,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshServicos = useCallback(async () => {
     try {
+      // Se for usuário demo, usar dados fictícios  
+      if (isDemoUser()) {
+        setServicos(DEMO_DATA.servicos);
+        return;
+      }
+      
       const { data } = await api.get<Servico[]>('/servicos');
       setServicos(data);
     } catch (error) {
@@ -57,12 +70,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [clientes]);
 
   const createCliente = useCallback(async (cliente: Omit<Cliente, 'id'>) => {
+    // Se for usuário demo, simular criação
+    if (isDemoUser()) {
+      const novoCliente: Cliente = {
+        ...cliente,
+        id: `demo-cliente-${Date.now()}`,
+        avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(cliente.nome)}&background=667eea&color=fff`
+      };
+      setClientes(prev => [novoCliente, ...prev]);
+      return novoCliente;
+    }
+    
     const { data } = await api.post<Cliente>('/clientes', cliente);
     setClientes(prev => [data, ...prev]);
     return data;
   }, [api]);
 
   const updateCliente = useCallback(async (id: string, updates: Partial<Cliente>) => {
+    // Se for usuário demo, simular atualização
+    if (isDemoUser()) {
+      const clienteAtualizado = { ...clientes.find(c => c.id === id)!, ...updates };
+      setClientes(prev => prev.map(c => (c.id === id ? clienteAtualizado : c)));
+      return clienteAtualizado;
+    }
+    
     const { data } = await api.put<Cliente>(`/clientes/${id}`, updates);
     setClientes(prev => prev.map(c => (c.id === id ? data : c)));
     return data;

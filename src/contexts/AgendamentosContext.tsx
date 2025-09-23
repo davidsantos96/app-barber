@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useApi } from './ApiContext';
+import { DEMO_DATA, isDemoUser } from '../data/demoData';
 
 export interface Agendamento {
   id: string;
@@ -41,6 +42,13 @@ export const AgendamentosProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const refresh = useCallback(async () => {
     try {
       setLoading(true);
+      
+      // Se for usuário demo, usar dados fictícios
+      if (isDemoUser()) {
+        setAgendamentos(DEMO_DATA.agendamentos);
+        return;
+      }
+      
       const { data } = await api.get<Agendamento[]>('/agendamentos');
       setAgendamentos(data);
     } catch (error) {
@@ -51,6 +59,17 @@ export const AgendamentosProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [api]);
 
   const create = useCallback(async (data: CreateAgendamentoData) => {
+    // Se for usuário demo, simular criação
+    if (isDemoUser()) {
+      const novoAgendamento: Agendamento = {
+        ...data,
+        id: `demo-agendamento-${Date.now()}`,
+        status: 'confirmado' as const
+      };
+      setAgendamentos(prev => [novoAgendamento, ...prev]);
+      return novoAgendamento;
+    }
+    
     const payload = { ...data, status: 'confirmado' as const };
     const response = await api.post<Agendamento>('/agendamentos', payload);
     setAgendamentos(prev => [response.data, ...prev]);
@@ -58,12 +77,27 @@ export const AgendamentosProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [api]);
 
   const update = useCallback(async (id: string, updates: Partial<Agendamento>) => {
+    // Se for usuário demo, simular atualização
+    if (isDemoUser()) {
+      const agendamentoAtualizado = { ...agendamentos.find(a => a.id === id)!, ...updates };
+      setAgendamentos(prev => prev.map(a => (a.id === id ? agendamentoAtualizado : a)));
+      return agendamentoAtualizado;
+    }
+    
     const { data } = await api.put<Agendamento>(`/agendamentos/${id}`, updates);
     setAgendamentos(prev => prev.map(a => (a.id === id ? data : a)));
     return data;
-  }, [api]);
+  }, [api, agendamentos]);
 
   const cancel = useCallback(async (id: string) => {
+    // Se for usuário demo, simular cancelamento
+    if (isDemoUser()) {
+      setAgendamentos(prev => 
+        prev.map(a => (a.id === id ? { ...a, status: 'cancelado' } as Agendamento : a))
+      );
+      return;
+    }
+    
     await api.delete(`/agendamentos/${id}`);
     // Marca como cancelado localmente
     setAgendamentos(prev => 
