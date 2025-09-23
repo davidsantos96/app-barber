@@ -2,29 +2,44 @@
 
 ## 📋 **Instruções para Configuração**
 
-O arquivo `userData.ts` contém credenciais sensíveis e não é versionado no repositório por questões de segurança.
+O sistema possui uma estratégia dupla para gerenciamento de credenciais:
 
-### **⚙️ Setup Inicial**
+### **🚀 Deploy de Produção**
+- `userData.ts` - Versão commitada com credenciais demo/desenvolvimento
+- `userData.prod.ts` - Template de produção que pode ser customizado
+- Credenciais de produção seguras para demonstração online
 
-1. **Copie o arquivo template:**
+### **🔒 Desenvolvimento Local**
+- `userData.local.ts` - Suas credenciais reais (ignorado pelo git)
+- Permite desenvolvimento com dados e senhas personalizados
+- Mantém segurança das credenciais sensíveis
+
+### **⚙️ Setup para Desenvolvimento Local**
+
+1. **Restaure suas credenciais locais:**
+   ```bash
+   cp src/data/userData.local.ts src/data/userData.ts
+   ```
+   OU
    ```bash
    cp src/data/userData.template.ts src/data/userData.ts
    ```
 
-2. **Configure as credenciais reais:**
-   Edite o arquivo `src/data/userData.ts` e substitua:
-   - `CONFIGURE_SENHA_ADMIN` → Senha real do administrador
-   - `CONFIGURE_USERNAME` → Username do primeiro barbeiro
-   - `CONFIGURE_SENHA` → Senha do primeiro barbeiro
-   - `CONFIGURE_NOME_BARBEIRO` → Nome completo do barbeiro
-   - `CONFIGURE_NOME_BARBEARIA` → Nome do estabelecimento
+2. **Configure suas credenciais reais:**
+   Edite o arquivo `src/data/userData.ts` e substitua as senhas demo por suas senhas reais
+
+3. **Para retornar ao modo de produção:**
+   ```bash
+   cp src/data/userData.prod.ts src/data/userData.ts
+   ```
 
 ### **🔒 Segurança**
 
-- ✅ O arquivo `userData.ts` está no `.gitignore`
-- ✅ Credenciais nunca serão enviadas ao repositório
-- ✅ Cada desenvolvedor configura suas próprias credenciais
-- ✅ Dados demo permanecem públicos (são fictícios)
+- ✅ `userData.ts` versão de produção commitada (senhas demo)
+- ✅ `userData.local.ts` suas credenciais reais (no .gitignore)  
+- ✅ `userData.prod.ts` template para customização de produção
+- ✅ Deploy funciona automaticamente no Vercel
+- ✅ Desenvolvimento local mantém suas credenciais
 
 ### **👥 Estrutura de Usuários**
 
@@ -35,10 +50,10 @@ O sistema suporta:
 
 ### **⚠️ Importante**
 
-- Nunca commite o arquivo `userData.ts`
+- Nunca commite credenciais reais no arquivo `userData.ts`
 - Use senhas seguras em produção
-- O usuário demo sempre usa a senha `demo` (é seguro, dados são fictícios)
 - Mantenha backup das configurações importantes
+- As credenciais demo são apenas para demonstração online
 
 ### **🚀 Exemplo de Configuração**
 
@@ -47,18 +62,18 @@ export const USERS: User[] = [
   {
     id: 'user-1',
     username: 'admin',
-    password: 'MinhaSenh@Segura123',
+    password: 'SUA_SENHA_ADMIN_AQUI',
     name: 'Administrador',
     role: 'admin',
     barbearia: 'Barbearia Central'
   },
   {
     id: 'user-3',
-    username: 'alvaro',
-    password: 'barbeiro@10',
-    name: 'Álvaro Barbeiro',
+    username: 'seu_usuario',
+    password: 'SUA_SENHA_AQUI',
+    name: 'Seu Nome Barbeiro',
     role: 'barbeiro',
-    barbearia: 'Barbearia do Álvaro'
+    barbearia: 'Nome da Sua Barbearia'
   }
   // ... outros usuários
 ];

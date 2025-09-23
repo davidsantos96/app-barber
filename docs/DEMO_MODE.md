@@ -56,9 +56,8 @@ Quando logado como `demo`, aparece um banner laranja:
 
 | Login | Dados | Comportamento |
 |-------|-------|---------------|
-| `demo/demo` | 🎭 Fictícios | Demonstração segura |
-| `admin/admin` | 🏪 Reais | Dados da barbearia |
-| `barber/123` | 🏪 Reais | Dados da barbearia |
+| Demo | 🎭 Fictícios | Demonstração segura |
+| Usuários Reais | 🏪 Reais | Dados da barbearia |
 
 ## 💡 **Benefícios:**
 
