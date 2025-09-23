@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useApi, useAgendamentos } from '../../contexts';
+import { useApi, useAgendamentos, useData, type Agendamento as CtxAgendamento, type Cliente as CtxCliente } from '../../contexts';
+import { isDemoUser } from '../../data/userData';
 import {
   PageBg,
   HeaderBar,
@@ -31,32 +32,16 @@ import {
 } from './AgendamentoDetalhePage.style';
 import { FiScissors, FiCalendar, FiCheck } from 'react-icons/fi';
 
-type Agendamento = {
-  id: string;
-  clienteId: string;
-  servico: string;
-  data: string; // YYYY-MM-DD
-  horario: string; // HH:mm
-  status: 'confirmado' | 'cancelado' | 'concluido' | string;
-};
-
-type Cliente = {
-  id: string;
-  nome: string;
-  apelido?: string;
-  telefone?: string;
-  avatarUrl?: string;
-};
-
 const AgendamentoDetalhePage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const api = useApi();
-  const { update, cancel } = useAgendamentos();
+  const { update, cancel, getAgendamentoById } = useAgendamentos();
+  const { getClienteById } = useData();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [agendamento, setAgendamento] = useState<Agendamento | null>(null);
-  const [cliente, setCliente] = useState<Cliente | null>(null);
+  const [agendamento, setAgendamento] = useState<CtxAgendamento | null>(null);
+  const [cliente, setCliente] = useState<CtxCliente | null>(null);
 
   // Modal states
   const [openRemarcar, setOpenRemarcar] = useState(false);
@@ -74,25 +59,66 @@ const AgendamentoDetalhePage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const { data: ag } = await api.get<Agendamento>(`/agendamentos/${id}`);
-        if (!alive) return;
-        setAgendamento(ag);
-        if (ag?.clienteId) {
-          const { data: cli } = await api.get<Cliente>(`/clientes/${ag.clienteId}`);
-          if (!alive) return;
-          setCliente(cli);
+        // 1) Tenta via context primeiro (rápido e funciona para demo)
+        let ag = getAgendamentoById(id);
+        if (ag) {
+          setAgendamento(ag);
+          const cliFromCtx = ag.clienteId ? getClienteById(ag.clienteId) : undefined;
+          if (cliFromCtx) setCliente(cliFromCtx);
+          setLoading(false);
+          // Para usuários reais, opcionalmente fazer refresh em background via API
+          if (!isDemoUser()) {
+            try {
+              const { data: agApi } = await api.get<CtxAgendamento>(`/agendamentos/${id}`);
+              if (!alive) return;
+              setAgendamento(agApi);
+              if (agApi?.clienteId) {
+                const cliCtx = getClienteById(agApi.clienteId);
+                if (cliCtx) setCliente(cliCtx);
+                else {
+                  const { data: cliApi } = await api.get<CtxCliente>(`/clientes/${agApi.clienteId}`);
+                  if (!alive) return;
+                  setCliente(cliApi);
+                }
+              }
+            } catch (bgErr) {
+              // ignora erros de background
+            }
+          }
+          return;
         }
+
+        // 2) Se não encontrou no contexto e não é demo, busca via API
+        if (!isDemoUser()) {
+          const { data: agApi } = await api.get<CtxAgendamento>(`/agendamentos/${id}`);
+          if (!alive) return;
+          setAgendamento(agApi);
+          if (agApi?.clienteId) {
+            const cliCtx = getClienteById(agApi.clienteId);
+            if (cliCtx) setCliente(cliCtx);
+            else {
+              const { data: cliApi } = await api.get<CtxCliente>(`/clientes/${agApi.clienteId}`);
+              if (!alive) return;
+              setCliente(cliApi);
+            }
+          }
+          setLoading(false);
+          return;
+        }
+
+        // 3) Demo e não achou no contexto: marca não encontrado
+        setAgendamento(null);
+        setLoading(false);
       } catch (e: any) {
         if (!alive) return;
         setError(e?.response?.data?.error || 'Não foi possível carregar o agendamento.');
-      } finally {
-        if (alive) setLoading(false);
+        setLoading(false);
       }
     })();
     return () => {
       alive = false;
     };
-  }, [id, api]);
+  }, [id, api, getAgendamentoById, getClienteById]);
 
   function formatarDataHora(data: string, hora: string) {
     const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
