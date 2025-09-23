@@ -5,6 +5,7 @@ import {
   PageBg, HeaderBar, HeaderTitle, BackButton, SearchBox, SearchInput, ClientesContainer, ClientesList, ClienteItemStyled, Avatar, ClienteInfo, ClienteNome, ClienteTelefone, Chevron, FloatingButton, ModalBg, ModalBox, ModalTitle, ModalInput, ModalActions, ModalButton, ModalCancelButton
 } from './ClientesPage.style';
 import { useData, type Cliente } from '../../contexts';
+import FooterNav from '../../components/FooterNav';
 
 const ClientesPage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -148,6 +149,7 @@ const ClientesPage: React.FC = () => {
           </ModalBox>
         </ModalBg>
       )}
+      <FooterNav />
     </PageBg>
   );
 };

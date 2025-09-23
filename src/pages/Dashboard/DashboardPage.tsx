@@ -11,13 +11,12 @@ import {
   Avatar,
   CardInfo,
   ServiceName,
-  ServiceTime,
-  FooterNav,
-  NavItem
+  ServiceTime
 } from './DashboardPage.style';
-import { FiPlus, FiUser, FiScissors, FiSettings, FiCalendar } from 'react-icons/fi';
+import { FiPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAgendamentos, useData, type Agendamento } from '../../contexts';
+import FooterNav from '../../components/FooterNav';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -82,12 +81,7 @@ const DashboardPage: React.FC = () => {
         <SectionTitle>Amanhã</SectionTitle>
         {agAmanha.length > 0 ? renderCards(agAmanha) : <ServiceTime>Nenhum agendamento para amanhã.</ServiceTime>}
       </Section>
-      <FooterNav>
-        <NavItem href="/dashboard" className="active"><FiCalendar size={22}/> Agendamentos</NavItem>
-        <NavItem href="/clientes"><FiUser size={22}/> Clientes</NavItem>
-        <NavItem href="/servicos"><FiScissors size={22}/> Serviços</NavItem>
-        <NavItem style={{ pointerEvents: 'none', opacity: 0.5, cursor: 'not-allowed' }} href="#"><FiSettings size={22}/> Configurações</NavItem>
-      </FooterNav>
+      <FooterNav />
     </DashboardContainer>
   );
 };
