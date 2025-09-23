@@ -154,7 +154,7 @@ const UserProfile: React.FC = () => {
     <ProfileContainer>
       <ProfileCard>
         <UserAvatar>
-          {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+          {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
         </UserAvatar>
         <UserName>{user.name}</UserName>
         <UserRole>

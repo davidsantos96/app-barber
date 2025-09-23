@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth';
 import { toast } from 'react-toastify';
-import { USERS } from '../../data/userData';
+import { USERS, type User } from '../../data/userData';
 import { LoginWrapper, LoginContainer, LoginTitle, LoginSubtitle, LoginForm, LoginField, LoginInput, LoginButton } from './LoginPage.style';
 
 
@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
         }}>
           <strong>👥 Usuários Disponíveis:</strong>
           <div style={{ marginTop: '12px' }}>
-            {USERS.map(user => (
+            {USERS.map((user: User) => (
               <div key={user.id} style={{ 
                 marginBottom: '8px', 
                 padding: '8px 12px', 
