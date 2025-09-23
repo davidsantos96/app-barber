@@ -23,11 +23,39 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleDemoLogin = () => {
+    setUser('demo');
+    setPass('demo');
+    if (login('demo', 'demo')) {
+      toast.success('Demo Login realizado!');
+      navigate('/dashboard');
+    }
+  };
+
   return (
     <LoginWrapper>
       <LoginContainer>
   <LoginTitle>Login</LoginTitle>
   <LoginSubtitle>App Barber</LoginSubtitle>
+  
+        {/* Credenciais de Demo */}
+        <div style={{ 
+          background: 'rgba(102, 126, 234, 0.1)', 
+          border: '1px solid rgba(102, 126, 234, 0.3)',
+          borderRadius: '8px', 
+          padding: '12px', 
+          marginBottom: '20px',
+          textAlign: 'center',
+          color: '#fff'
+        }}>
+          <strong>🎯 Demo Credentials:</strong><br/>
+          <div style={{ marginTop: '8px', fontSize: '14px' }}>
+            <span style={{ fontFamily: 'monospace', background: 'rgba(0,0,0,0.3)', padding: '4px 12px', borderRadius: '4px' }}>
+              demo / demo
+            </span>
+          </div>
+        </div>
+
         <LoginForm onSubmit={handleSubmit}>
           <LoginField>
             <label htmlFor="usuario" style={{ display: 'none' }}>Usuário</label>
@@ -52,6 +80,18 @@ const LoginPage: React.FC = () => {
             />
           </LoginField>
           <LoginButton type="submit">Log in</LoginButton>
+          
+          {/* Botão de Demo Login */}
+          <LoginButton 
+            type="button" 
+            onClick={() => handleDemoLogin()}
+            style={{ 
+              background: 'linear-gradient(45deg, #ff6b6b, #ffa500)', 
+              marginTop: '10px' 
+            }}
+          >
+            🎯 Demo Login (Click Here!)
+          </LoginButton>
         </LoginForm>
       </LoginContainer>
     </LoginWrapper>

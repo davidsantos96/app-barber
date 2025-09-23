@@ -27,6 +27,19 @@ Currently, two official plugins are available:
 
 ---
 
+## 🎯 Testando o Demo Live
+
+**🔗 Acesse**: [https://app-barber-six.vercel.app/](https://app-barber-six.vercel.app/)
+
+### 🔐 Credenciais para Login:
+```
+Usuário: demo    | Senha: demo
+```
+
+**💡 Dica**: Use o botão "🎯 Demo Login" para acesso rápido!
+
+---
+
 ## 📋 Sobre o Projeto
 
 O **App Barber** é uma aplicação full-stack completa para gerenciamento de barbearias, desenvolvida com as tecnologias mais modernas do mercado. O sistema permite o controle total de agendamentos, clientes e serviços, oferecendo uma experiência otimizada tanto para profissionais quanto para clientes.

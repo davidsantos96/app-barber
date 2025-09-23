@@ -14,14 +14,23 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin';
+// Credenciais para demo
+const DEMO_USERS = [
+  { user: 'admin', pass: 'admin' },
+  { user: 'demo', pass: 'demo' },
+  { user: 'barber', pass: '123' },
+];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('auth'));
+  
   const login = (user: string, pass: string) => {
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    // Verificar se é uma das credenciais válidas
+    const isValidUser = DEMO_USERS.some(u => u.user === user && u.pass === pass);
+    
+    if (isValidUser) {
       localStorage.setItem('auth', '1');
+      localStorage.setItem('user', user);
       setIsAuthenticated(true);
       return true;
     }
