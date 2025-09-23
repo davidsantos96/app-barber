@@ -50,9 +50,9 @@ const DashboardPage: React.FC = () => {
         {ags.map(a => {
           const cliente = getClienteById(a.clienteId);
           return (
-            <Card key={a.id} style={{ cursor: 'pointer', position: 'relative' }}>
+            <Card key={a.id} style={{ cursor: 'pointer', position: 'relative' }} onClick={() => handleCardClick(a)}>
               <Avatar src={cliente?.avatarUrl || '/icon1.png'} alt={cliente?.nome || 'Cliente'} />
-              <CardInfo onClick={() => handleCardClick(a)}>
+              <CardInfo>
                 <ServiceName>{a.servico}</ServiceName>
                 <ServiceTime>{a.horario}</ServiceTime>
                 <ServiceTime style={{ color: '#fff', fontWeight: 500 }}>{cliente?.nome || 'Cliente'}</ServiceTime>

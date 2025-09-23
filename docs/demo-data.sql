@@ -11,7 +11,7 @@ INSERT INTO clientes (nome, apelido, telefone) VALUES
 
 -- Inserir serviços de exemplo
 INSERT INTO servicos (nome, preco, duracao) VALUES
-('Corte Masculino', 25.00, 30),
+('Corte de Cabelo', 25.00, 30),
 ('Corte + Barba', 35.00, 45),
 ('Barba Completa', 20.00, 25),
 ('Sobrancelha', 15.00, 15),
@@ -20,8 +20,8 @@ INSERT INTO servicos (nome, preco, duracao) VALUES
 -- Inserir agendamentos de exemplo (ajuste as datas)
 INSERT INTO agendamentos (cliente_id, servico_id, servico, data, horario, status) VALUES
 ((SELECT id FROM clientes WHERE nome = 'João Silva'), 
- (SELECT id FROM servicos WHERE nome = 'Corte Masculino'), 
- 'Corte Masculino', 
+ (SELECT id FROM servicos WHERE nome = 'Corte de Cabelo'), 
+ 'Corte de Cabelo', 
  CURRENT_DATE, 
  '14:00', 
  'agendado'),

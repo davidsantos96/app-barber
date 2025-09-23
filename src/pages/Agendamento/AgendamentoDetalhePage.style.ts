@@ -213,3 +213,87 @@ export const CancelarButton = styled.button`
     padding: 0.7rem 0 0.3rem 0;
   }
 `;
+
+// Modal
+export const ModalBg = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+export const ModalBox = styled.div`
+  width: min(92vw, 480px);
+  background: #181c23;
+  border: 1px solid #232526;
+  border-radius: 14px;
+  padding: 1.2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+`;
+
+export const ModalTitle = styled.h3`
+  color: #fff;
+  font-size: 1.4rem;
+  margin: 0 0 0.8rem 0;
+`;
+
+export const ModalText = styled.p`
+  color: #b0b3b8;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+`;
+
+export const ModalInputRow = styled.div`
+  display: flex;
+  gap: 0.8rem;
+  margin: 0.6rem 0 1rem 0;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+`;
+
+export const ModalInput = styled.input`
+  flex: 1;
+  background: #0f1218;
+  border: 1px solid #232526;
+  border-radius: 10px;
+  color: #fff;
+  padding: 0.75rem 0.9rem;
+  font-size: 1rem;
+  outline: none;
+  &:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+`;
+
+export const ModalActions = styled.div`
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+`;
+
+export const ModalButton = styled.button`
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+`;
+
+export const ModalCancelButton = styled.button`
+  background: #232526;
+  color: #fff;
+  border: 1px solid #3a3f47;
+  border-radius: 10px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+`;

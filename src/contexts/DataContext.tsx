@@ -80,7 +80,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = getCurrentUser();
       if (currentUser) {
         setServicos([
-          { id: 'servico-1', nome: 'Corte Masculino', preco: 25.00 },
+          { id: 'servico-1', nome: 'Corte de Cabelo', preco: 25.00 },
           { id: 'servico-2', nome: 'Corte + Barba', preco: 35.00 },
           { id: 'servico-3', nome: 'Barba Completa', preco: 20.00 },
           { id: 'servico-4', nome: 'Sobrancelha', preco: 15.00 }

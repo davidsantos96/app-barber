@@ -70,7 +70,7 @@ export const USER_DATA = {
         id: 'alvaro-agendamento-1',
         clienteId: 'alvaro-cliente-1',
         servicoId: 'servico-1',
-        servico: 'Corte Masculino',
+        servico: 'Corte de Cabelo',
         data: new Date().toISOString().split('T')[0],
         horario: '09:00',
         status: 'confirmado' as const,
@@ -120,7 +120,7 @@ export const DEMO_DATA = {
   servicos: [
     {
       id: 'demo-servico-1',
-      nome: 'Corte Masculino',
+      nome: 'Corte de Cabelo',
       preco: 25.00,
       duracao: 30
     },
@@ -149,7 +149,7 @@ export const DEMO_DATA = {
       id: 'demo-agendamento-1',
       clienteId: 'demo-cliente-1',
       servicoId: 'demo-servico-1',
-      servico: 'Corte Masculino',
+      servico: 'Corte de Cabelo',
       data: new Date().toISOString().split('T')[0],
       horario: '14:00',
       status: 'confirmado' as const

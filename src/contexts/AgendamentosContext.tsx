@@ -52,20 +52,24 @@ export const AgendamentosProvider: React.FC<{ children: React.ReactNode }> = ({ 
         return;
       }
 
-      // Para usuários reais, carregar seus agendamentos específicos
-      const currentUser = getCurrentUser();
-      if (currentUser) {
-        const userData = getUserData(currentUser.id);
-        if ('agendamentos' in userData) {
-          setAgendamentos(userData.agendamentos);
+      // Para usuários reais, priorizar dados do backend
+      try {
+        const { data } = await api.get<Agendamento[]>('/agendamentos');
+        setAgendamentos(data);
+      } catch (apiError) {
+        console.warn('API não disponível, usando dados locais como fallback');
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          const userData = getUserData(currentUser.id);
+          if ('agendamentos' in userData) {
+            setAgendamentos(userData.agendamentos);
+          } else {
+            setAgendamentos([]);
+          }
         } else {
           setAgendamentos([]);
         }
-        return;
       }
-      
-      const { data } = await api.get<Agendamento[]>('/agendamentos');
-      setAgendamentos(data);
     } catch (error) {
       console.error('Erro ao buscar agendamentos:', error);
     } finally {

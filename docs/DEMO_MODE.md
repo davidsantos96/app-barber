@@ -20,7 +20,7 @@ Agora o usuário `demo` tem **dados completamente separados** dos dados reais da
 - Ana Costa (Aninha)
 
 #### **✂️ Serviços Demo:**
-- Corte Masculino - R$ 25,00
+- Corte de Cabelo - R$ 25,00
 - Corte + Barba - R$ 35,00
 - Barba Completa - R$ 20,00
 - Sobrancelha - R$ 15,00

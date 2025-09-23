@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useApi, useAgendamentos } from '../../contexts';
 import {
   PageBg,
   HeaderBar,
@@ -18,25 +18,81 @@ import {
   Actions,
   RemarcarButton,
   EditarButton,
-  CancelarButton
+  CancelarButton,
+  ModalBg,
+  ModalBox,
+  ModalTitle,
+  ModalText,
+  ModalInputRow,
+  ModalInput,
+  ModalActions,
+  ModalButton,
+  ModalCancelButton
 } from './AgendamentoDetalhePage.style';
 import { FiScissors, FiCalendar, FiCheck } from 'react-icons/fi';
+
+type Agendamento = {
+  id: string;
+  clienteId: string;
+  servico: string;
+  data: string; // YYYY-MM-DD
+  horario: string; // HH:mm
+  status: 'confirmado' | 'cancelado' | 'concluido' | string;
+};
+
+type Cliente = {
+  id: string;
+  nome: string;
+  apelido?: string;
+  telefone?: string;
+  avatarUrl?: string;
+};
 
 const AgendamentoDetalhePage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [agendamento, setAgendamento] = useState<any>(null);
-  const [cliente, setCliente] = useState<any>(null);
+  const api = useApi();
+  const { update, cancel } = useAgendamentos();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [agendamento, setAgendamento] = useState<Agendamento | null>(null);
+  const [cliente, setCliente] = useState<Cliente | null>(null);
+
+  // Modal states
+  const [openRemarcar, setOpenRemarcar] = useState(false);
+  const [openEditar, setOpenEditar] = useState(false);
+  const [openCancelar, setOpenCancelar] = useState(false);
+  const [novaData, setNovaData] = useState('');
+  const [novoHorario, setNovoHorario] = useState('');
+  const [novoServico, setNovoServico] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
-      const agRes = await axios.get(`https://app-barber-hmm9.onrender.com/agendamentos/${id}`);
-      setAgendamento(agRes.data);
-      const clRes = await axios.get(`https://app-barber-hmm9.onrender.com/clientes/${agRes.data.clienteId}`);
-      setCliente(clRes.data);
-    }
-    fetchData();
-  }, [id]);
+    let alive = true;
+    (async () => {
+      if (!id) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const { data: ag } = await api.get<Agendamento>(`/agendamentos/${id}`);
+        if (!alive) return;
+        setAgendamento(ag);
+        if (ag?.clienteId) {
+          const { data: cli } = await api.get<Cliente>(`/clientes/${ag.clienteId}`);
+          if (!alive) return;
+          setCliente(cli);
+        }
+      } catch (e: any) {
+        if (!alive) return;
+        setError(e?.response?.data?.error || 'Não foi possível carregar o agendamento.');
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [id, api]);
 
   function formatarDataHora(data: string, hora: string) {
     const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -44,7 +100,57 @@ const AgendamentoDetalhePage: React.FC = () => {
     return `${d.getDate()} de ${meses[d.getMonth()]}, ${d.getFullYear()} às ${hora}`;
   }
 
-  if (!agendamento || !cliente) return <PageBg><HeaderBar><HeaderTitle>Detalhes do Agendamento</HeaderTitle></HeaderBar></PageBg>;
+  if (!id) {
+    return (
+      <PageBg>
+        <HeaderBar>
+          <BackButton onClick={() => navigate(-1)}>&#8592;</BackButton>
+          <HeaderTitle>Agendamento inválido</HeaderTitle>
+        </HeaderBar>
+      </PageBg>
+    );
+  }
+
+  if (loading) {
+    return (
+      <PageBg>
+        <HeaderBar>
+          <BackButton onClick={() => navigate(-1)}>&#8592;</BackButton>
+          <HeaderTitle>Carregando...</HeaderTitle>
+        </HeaderBar>
+      </PageBg>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageBg>
+        <HeaderBar>
+          <BackButton onClick={() => navigate(-1)}>&#8592;</BackButton>
+          <HeaderTitle>Detalhes do Agendamento</HeaderTitle>
+        </HeaderBar>
+        <InfoSection>
+          <InfoItem>
+            <div>
+              <InfoLabel>Erro</InfoLabel>
+              <InfoValue>{error}</InfoValue>
+            </div>
+          </InfoItem>
+        </InfoSection>
+      </PageBg>
+    );
+  }
+
+  if (!agendamento) {
+    return (
+      <PageBg>
+        <HeaderBar>
+          <BackButton onClick={() => navigate(-1)}>&#8592;</BackButton>
+          <HeaderTitle>Agendamento não encontrado</HeaderTitle>
+        </HeaderBar>
+      </PageBg>
+    );
+  }
 
   return (
     <PageBg>
@@ -53,10 +159,10 @@ const AgendamentoDetalhePage: React.FC = () => {
         <HeaderTitle>Detalhes do Agendamento</HeaderTitle>
       </HeaderBar>
       <ClienteSection>
-        <Avatar src={cliente.avatarUrl || '/icon1.png'} alt={cliente.nome} />
+        <Avatar src={(cliente && cliente.avatarUrl) || '/icon1.png'} alt={cliente?.nome || 'Cliente'} />
         <div>
-          <ClienteNome>{cliente.nome}</ClienteNome>
-          <ClienteSub>Cliente recorrente</ClienteSub>
+          <ClienteNome>{cliente?.nome || 'Cliente'}</ClienteNome>
+          <ClienteSub>{cliente?.apelido ? `(${cliente.apelido})` : 'Cliente'}</ClienteSub>
         </div>
       </ClienteSection>
       <InfoSection>
@@ -83,48 +189,123 @@ const AgendamentoDetalhePage: React.FC = () => {
         </InfoItem>
       </InfoSection>
       <Actions>
-        <RemarcarButton onClick={async () => {
-          const novaData = prompt('Nova data (YYYY-MM-DD):', agendamento.data);
-          const novoHorario = prompt('Novo horário (HH:mm):', agendamento.horario);
-          if (novaData && novoHorario) {
-            try {
-              await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamento.id}`, {
-                data: novaData,
-                horario: novoHorario
-              });
-              alert('Agendamento remarcado!');
-              window.location.reload();
-            } catch (err: any) {
-              alert(err.response?.data?.error || 'Erro ao remarcar');
-            }
-          }
+        <RemarcarButton onClick={() => {
+          setNovaData(agendamento.data);
+          setNovoHorario(agendamento.horario);
+          setOpenRemarcar(true);
         }}>Remarcar</RemarcarButton>
-        <EditarButton onClick={async () => {
-          const novoServico = prompt('Novo serviço:', agendamento.servico);
-          if (novoServico) {
-            try {
-              await axios.put(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamento.id}`, {
-                servico: novoServico
-              });
-              alert('Serviço atualizado!');
-              window.location.reload();
-            } catch (err: any) {
-              alert(err.response?.data?.error || 'Erro ao editar');
-            }
-          }
+        <EditarButton onClick={() => {
+          setNovoServico(agendamento.servico);
+          setOpenEditar(true);
         }}>Editar</EditarButton>
       </Actions>
-      <CancelarButton onClick={async () => {
-        if (window.confirm('Deseja cancelar este agendamento?')) {
-          try {
-            await axios.delete(`https://app-barber-hmm9.onrender.com/agendamentos/${agendamento.id}`);
-            alert('Agendamento cancelado!');
-            window.location.reload();
-          } catch (err: any) {
-            alert(err.response?.data?.error || 'Erro ao cancelar');
-          }
-        }
-      }}>Cancelar Agendamento</CancelarButton>
+      <CancelarButton onClick={() => setOpenCancelar(true)}>Cancelar Agendamento</CancelarButton>
+
+      {openRemarcar && (
+        <ModalBg>
+          <ModalBox>
+            <ModalTitle>Remarcar agendamento</ModalTitle>
+            <ModalInputRow>
+              <ModalInput
+                type="date"
+                value={novaData}
+                onChange={(e) => setNovaData(e.target.value)}
+              />
+              <ModalInput
+                type="time"
+                value={novoHorario}
+                onChange={(e) => setNovoHorario(e.target.value)}
+              />
+            </ModalInputRow>
+            <ModalActions>
+              <ModalCancelButton onClick={() => setOpenRemarcar(false)}>Cancelar</ModalCancelButton>
+              <ModalButton
+                onClick={async () => {
+                  setSaving(true);
+                  try {
+                    const updated = await update(agendamento.id, { data: novaData, horario: novoHorario });
+                    setAgendamento(updated);
+                    setOpenRemarcar(false);
+                  } catch (err: any) {
+                    alert(err.response?.data?.error || 'Erro ao remarcar');
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving || !novaData || !novoHorario}
+              >
+                Salvar
+              </ModalButton>
+            </ModalActions>
+          </ModalBox>
+        </ModalBg>
+      )}
+
+      {openEditar && (
+        <ModalBg>
+          <ModalBox>
+            <ModalTitle>Editar serviço</ModalTitle>
+            <ModalInputRow>
+              <ModalInput
+                type="text"
+                placeholder="Serviço"
+                value={novoServico}
+                onChange={(e) => setNovoServico(e.target.value)}
+              />
+            </ModalInputRow>
+            <ModalActions>
+              <ModalCancelButton onClick={() => setOpenEditar(false)}>Cancelar</ModalCancelButton>
+              <ModalButton
+                onClick={async () => {
+                  if (!novoServico.trim()) return;
+                  setSaving(true);
+                  try {
+                    const updated = await update(agendamento.id, { servico: novoServico.trim() });
+                    setAgendamento(updated);
+                    setOpenEditar(false);
+                  } catch (err: any) {
+                    alert(err.response?.data?.error || 'Erro ao editar');
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving || !novoServico.trim()}
+              >
+                Salvar
+              </ModalButton>
+            </ModalActions>
+          </ModalBox>
+        </ModalBg>
+      )}
+
+      {openCancelar && (
+        <ModalBg>
+          <ModalBox>
+            <ModalTitle>Cancelar agendamento</ModalTitle>
+            <ModalText>Tem certeza que deseja cancelar este agendamento?</ModalText>
+            <ModalActions>
+              <ModalCancelButton onClick={() => setOpenCancelar(false)}>Voltar</ModalCancelButton>
+              <ModalButton
+                onClick={async () => {
+                  setSaving(true);
+                  try {
+                    await cancel(agendamento.id);
+                    setOpenCancelar(false);
+                    navigate(-1);
+                  } catch (err: any) {
+                    alert(err.response?.data?.error || 'Erro ao cancelar');
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving}
+              >
+                Confirmar
+              </ModalButton>
+            </ModalActions>
+          </ModalBox>
+        </ModalBg>
+      )}
     </PageBg>
   );
 };

@@ -90,7 +90,7 @@ Lista todos os serviços disponíveis.
 [
   {
     "id": "uuid",
-    "nome": "Corte Masculino",
+    "nome": "Corte de Cabelo",
     "preco": 25.00,
     "duracao": 30
   }
@@ -127,7 +127,7 @@ Lista todos os agendamentos.
     "id": "uuid",
     "clienteId": "uuid",
     "servicoId": "uuid",
-    "servico": "Corte Masculino",
+    "servico": "Corte de Cabelo",
     "data": "2024-01-15",
     "horario": "14:30",
     "status": "agendado"
@@ -143,7 +143,7 @@ Cria um novo agendamento.
 {
   "clienteId": "uuid",
   "servicoId": "uuid",
-  "servico": "Corte Masculino",
+  "servico": "Corte de Cabelo",
   "data": "2024-01-15",
   "horario": "14:30"
 }
@@ -212,7 +212,7 @@ const clientes = await api.get('/clientes');
 const novoAgendamento = await api.post('/agendamentos', {
   clienteId: 'uuid-cliente',
   servicoId: 'uuid-servico',
-  servico: 'Corte Masculino',
+  servico: 'Corte de Cabelo',
   data: '2024-01-15',
   horario: '14:30'
 });
