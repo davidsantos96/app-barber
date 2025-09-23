@@ -5,7 +5,7 @@ import { useAuth } from '../../auth';
 import { NavbarContainer, Brand, HamburgerMenu, NavLinks, StyledLink, LogoutButton } from './Navbar.style';
 
 const Navbar: React.FC = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -20,7 +20,19 @@ const Navbar: React.FC = () => {
 
   return (
     <NavbarContainer>
-      <Brand to="/dashboard">AppBarber</Brand>
+      <Brand to="/dashboard">
+        AppBarber
+        {user && (
+          <div style={{ 
+            fontSize: '12px', 
+            fontWeight: 'normal', 
+            opacity: 0.8,
+            marginTop: '2px' 
+          }}>
+            👤 {user.name} {user.barbearia ? `- ${user.barbearia}` : ''}
+          </div>
+        )}
+      </Brand>
       <HamburgerMenu onClick={toggleMenu}>
         <span />
         <span />
@@ -31,6 +43,7 @@ const Navbar: React.FC = () => {
         <StyledLink to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</StyledLink>
         <StyledLink to="/agenda" onClick={() => setIsOpen(false)}>Agenda</StyledLink>
         <StyledLink to="/clientes" onClick={() => setIsOpen(false)}>Clientes</StyledLink>
+        <StyledLink to="/perfil" onClick={() => setIsOpen(false)}>👤 Perfil</StyledLink>
         <LogoutButton onClick={() => { handleLogout(); setIsOpen(false); }}>Sair</LogoutButton>
       </NavLinks>
     </NavbarContainer>

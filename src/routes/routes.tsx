@@ -9,6 +9,7 @@ import NovoClientePage from '../pages/Clientes/NovoCliente/NovoClientePage';
 import DisponibilidadePage from '../pages/Disponibilidade/DisponibilidadePage';
 import ServicosPage from '../pages/Servicos/ServicosPage';
 import AgendamentoDetalhePage from '../pages/Agendamento/AgendamentoDetalhePage';
+import UserProfile from '../pages/UserProfile/UserProfile';
 import { useAuth } from '../auth';
 
 const PrivateRoute = ({ element }: { element: React.JSX.Element }) => {
@@ -27,6 +28,7 @@ const RoutesConfig: React.FC = () => (
     <Route path="/servicos" element={<PrivateRoute element={<ServicosPage />} />} />
     <Route path="/agendamento/:id" element={<PrivateRoute element={<AgendamentoDetalhePage />} />} />
     <Route path="/disponibilidade" element={<PrivateRoute element={<DisponibilidadePage />} />} />
+    <Route path="/perfil" element={<PrivateRoute element={<UserProfile />} />} />
   </Routes>
 );
 

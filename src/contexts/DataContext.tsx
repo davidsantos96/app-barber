@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useApi } from './ApiContext';
-import { DEMO_DATA, isDemoUser } from '../data/demoData';
+import { isDemoUser, getUserData, getCurrentUser } from '../data/userData';
 
 export interface Cliente {
   id: string;
@@ -39,7 +39,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Se for usuário demo, usar dados fictícios
       if (isDemoUser()) {
-        setClientes(DEMO_DATA.clientes);
+        const demoData = getUserData('demo');
+        setClientes(demoData.clientes);
+        return;
+      }
+
+      // Para usuários reais, carregar seus dados específicos
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        const userData = getUserData(currentUser.id);
+        setClientes(userData.clientes || []);
         return;
       }
       
@@ -54,7 +63,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Se for usuário demo, usar dados fictícios  
       if (isDemoUser()) {
-        setServicos(DEMO_DATA.servicos);
+        const demoData = getUserData('demo');
+        if ('servicos' in demoData) {
+          setServicos(demoData.servicos);
+        }
+        return;
+      }
+
+      // Para usuários reais, usar serviços padrão por enquanto
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        setServicos([
+          { id: 'servico-1', nome: 'Corte Masculino', preco: 25.00 },
+          { id: 'servico-2', nome: 'Corte + Barba', preco: 35.00 },
+          { id: 'servico-3', nome: 'Barba Completa', preco: 20.00 },
+          { id: 'servico-4', nome: 'Sobrancelha', preco: 15.00 }
+        ]);
         return;
       }
       

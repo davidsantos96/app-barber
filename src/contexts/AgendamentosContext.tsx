@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useApi } from './ApiContext';
-import { DEMO_DATA, isDemoUser } from '../data/demoData';
+import { isDemoUser, getUserData, getCurrentUser } from '../data/userData';
 
 export interface Agendamento {
   id: string;
@@ -45,7 +45,22 @@ export const AgendamentosProvider: React.FC<{ children: React.ReactNode }> = ({ 
       
       // Se for usuário demo, usar dados fictícios
       if (isDemoUser()) {
-        setAgendamentos(DEMO_DATA.agendamentos);
+        const demoData = getUserData('demo');
+        if ('agendamentos' in demoData) {
+          setAgendamentos(demoData.agendamentos);
+        }
+        return;
+      }
+
+      // Para usuários reais, carregar seus agendamentos específicos
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        const userData = getUserData(currentUser.id);
+        if ('agendamentos' in userData) {
+          setAgendamentos(userData.agendamentos);
+        } else {
+          setAgendamentos([]);
+        }
         return;
       }
       

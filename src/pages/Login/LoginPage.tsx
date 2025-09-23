@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth';
 import { toast } from 'react-toastify';
+import { USERS } from '../../data/userData';
 import { LoginWrapper, LoginContainer, LoginTitle, LoginSubtitle, LoginForm, LoginField, LoginInput, LoginButton } from './LoginPage.style';
 
 
@@ -23,12 +24,12 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleDemoLogin = () => {
-    setUser('demo');
-    setPass('demo');
-    if (login('demo', 'demo')) {
-      toast.success('Demo Login realizado!');
+  const handleQuickLogin = (username: string, password: string, userName: string) => {
+    if (login(username, password)) {
+      toast.success(`Login realizado como ${userName}!`);
       navigate('/dashboard');
+    } else {
+      toast.error('Erro no login');
     }
   };
 
@@ -38,21 +39,54 @@ const LoginPage: React.FC = () => {
   <LoginTitle>Login</LoginTitle>
   <LoginSubtitle>App Barber</LoginSubtitle>
   
-        {/* Credenciais de Demo */}
+        {/* Lista de Usuários Disponíveis */}
         <div style={{ 
           background: 'rgba(102, 126, 234, 0.1)', 
           border: '1px solid rgba(102, 126, 234, 0.3)',
           borderRadius: '8px', 
-          padding: '12px', 
+          padding: '16px', 
           marginBottom: '20px',
-          textAlign: 'center',
           color: '#fff'
         }}>
-          <strong>🎯 Demo Credentials:</strong><br/>
-          <div style={{ marginTop: '8px', fontSize: '14px' }}>
-            <span style={{ fontFamily: 'monospace', background: 'rgba(0,0,0,0.3)', padding: '4px 12px', borderRadius: '4px' }}>
-              demo / demo
-            </span>
+          <strong>👥 Usuários Disponíveis:</strong>
+          <div style={{ marginTop: '12px' }}>
+            {USERS.map(user => (
+              <div key={user.id} style={{ 
+                marginBottom: '8px', 
+                padding: '8px 12px', 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '6px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>{user.name}</div>
+                  <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                    {user.role}
+                  </div>
+                  {user.barbearia && (
+                    <div style={{ fontSize: '11px', color: '#ffd700' }}>
+                      🏪 {user.barbearia}
+                    </div>
+                  )}
+                </div>
+                <button
+                  style={{
+                    background: 'rgba(102, 126, 234, 0.8)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                  onClick={() => handleQuickLogin(user.username, user.password, user.name)}
+                >
+                  Login Rápido
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -84,7 +118,7 @@ const LoginPage: React.FC = () => {
           {/* Botão de Demo Login */}
           <LoginButton 
             type="button" 
-            onClick={() => handleDemoLogin()}
+            onClick={() => handleQuickLogin('demo', 'demo', 'Usuário Demo')}
             style={{ 
               background: 'linear-gradient(45deg, #ff6b6b, #ffa500)', 
               marginTop: '10px' 
