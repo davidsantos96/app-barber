@@ -186,8 +186,18 @@ export const DEMO_DATA = {
 
 // Funções auxiliares
 export const getCurrentUser = (): User | null => {
-  const userId = localStorage.getItem('userId');
-  return userId ? USERS.find((u: User) => u.id === userId) || null : null;
+  try {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      return null;
+    }
+    
+    const user = USERS.find((u: User) => u.id === userId);
+    return user || null;
+  } catch (error) {
+    console.error('Erro ao obter usuário atual:', error);
+    return null;
+  }
 };
 
 export const isDemoUser = () => {

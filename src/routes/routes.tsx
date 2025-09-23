@@ -14,7 +14,7 @@ import { useAuth } from '../auth';
 
 const PrivateRoute = ({ element }: { element: React.JSX.Element }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? element : <Navigate to="/" />;
+  return isAuthenticated ? element : <Navigate to="/" replace />;
 };
 
 const RoutesConfig: React.FC = () => (

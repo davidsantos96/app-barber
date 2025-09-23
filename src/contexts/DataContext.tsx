@@ -52,10 +52,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
-      const { data } = await api.get<Cliente[]>('/clientes');
-      setClientes(data);
+      // Fallback para API se não houver usuário local
+      try {
+        const { data } = await api.get<Cliente[]>('/clientes');
+        setClientes(data);
+      } catch (apiError) {
+        console.warn('API não disponível, usando dados vazios');
+        setClientes([]);
+      }
     } catch (error) {
       console.error('Erro ao buscar clientes:', error);
+      setClientes([]);
     }
   }, [api]);
 
