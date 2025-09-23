@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 export const ClientesContainer = styled.div`
   width: 100%;
   max-width: 600px;
@@ -41,6 +43,11 @@ export const PageBg = styled.div`
   min-height: 100vh;
   background: #000;
   position: relative;
+  /* Reserva espaço para a FooterNav fixa */
+  padding-bottom: 80px;
+  @media (max-width: 600px) {
+    padding-bottom: 60px;
+  }
 `;
 
 export const HeaderBar = styled.div`
@@ -141,7 +148,8 @@ export const Chevron = styled.div`
 export const FloatingButton = styled.button`
   position: fixed;
   right: 2rem;
-  bottom: 2rem;
+  /* Eleva o botão acima da FooterNav */
+  bottom: calc(env(safe-area-inset-bottom) + 88px);
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -155,13 +163,11 @@ export const FloatingButton = styled.button`
   z-index: 2000;
   @media (max-width: 600px) {
     right: 1rem;
-    bottom: 1rem;
+    bottom: calc(env(safe-area-inset-bottom) + 72px);
     width: 44px;
     height: 44px;
   }
 `;
-
-import styled from 'styled-components';
 
 export const ModalBg = styled.div`
   position: fixed;

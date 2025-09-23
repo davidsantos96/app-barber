@@ -8,11 +8,8 @@ const DemoBanner = styled.div`
   text-align: center;
   font-weight: 600;
   font-size: 14px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+  position: relative;
+  z-index: 1;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 `;
 
