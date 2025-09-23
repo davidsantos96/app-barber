@@ -44,21 +44,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Para usuários reais, carregar seus dados específicos
-      const currentUser = getCurrentUser();
-      if (currentUser) {
-        const userData = getUserData(currentUser.id);
-        setClientes(userData.clientes || []);
-        return;
-      }
-      
-      // Fallback para API se não houver usuário local
+      // Para usuários reais (Álvaro, admin, etc.), carregar do banco de dados
       try {
         const { data } = await api.get<Cliente[]>('/clientes');
         setClientes(data);
       } catch (apiError) {
-        console.warn('API não disponível, usando dados vazios');
-        setClientes([]);
+        console.warn('API não disponível, usando dados locais como fallback');
+        // Fallback para dados locais apenas se a API falhar
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          const userData = getUserData(currentUser.id);
+          setClientes(userData.clientes || []);
+        } else {
+          setClientes([]);
+        }
       }
     } catch (error) {
       console.error('Erro ao buscar clientes:', error);
