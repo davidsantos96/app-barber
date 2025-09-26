@@ -6,6 +6,7 @@ import disponibilidadeRouter from './routes/disponibilidade';
 import dashboardRouter from './routes/dashboard';
 import servicosRouter from './routes/servicos';
 import authRouter from './routes/auth';
+import healthRouter from './routes/health';
 import { authMiddleware } from './middlewares/authMiddleware';
 
 const app = express();
@@ -18,6 +19,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('API AppBarber funcionando!');
 });
+
+app.use('/health', healthRouter);
 
 // Rota pública para autenticação
 app.use('/auth', authRouter);
