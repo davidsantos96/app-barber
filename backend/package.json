@@ -1,11 +1,12 @@
 {
   "name": "appbarber-backend",
   "version": "0.1.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc -p .",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -17,7 +18,8 @@
     "uuid": "^13.0.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18",
+    "npm": ">=8"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
