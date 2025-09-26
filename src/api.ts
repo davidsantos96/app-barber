@@ -5,8 +5,8 @@ const getBaseURL = () => {
   // Em desenvolvimento, verifica se o backend local está disponível
   const isDevelopment = import.meta.env.DEV;
   const localBackendURL = 'http://localhost:3001';
-  // Ajustado para Vercel serverless function (backend dentro do monorepo)
-  const productionBackendURL = '/api';
+  // Backend externo (Render/Railway/etc.) em produção
+  const productionBackendURL = 'https://app-barber-hmm9.onrender.com';
   
   // Se estiver em desenvolvimento, use o backend local, senão use o de produção
   return isDevelopment ? localBackendURL : productionBackendURL;

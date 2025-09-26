@@ -213,27 +213,39 @@ const Button = styled.button`
 
 ## 🚀 Deploy
 
-### Deploy Unificado (Vercel)
-O projeto agora está configurado para deploy full-stack (frontend + backend serverless) na Vercel.
+### Deploy (Frontend + Backend Separados)
 
-1. Configure variáveis de ambiente no dashboard da Vercel (Project Settings > Environment Variables):
+Atual: Frontend hospedado na Vercel e backend em provedor separado (ex: Render/Railway).
+
+Frontend (Vercel):
+1. Conectar repositório.
+2. Build Command: `npm run build`
+3. Output Directory: `dist`
+4. `vercel.json` já faz rewrite SPA.
+
+Backend (Render/Railway):
+1. Root do serviço: pasta `backend/`.
+2. Build Command:
 ```
-JWT_SECRET=coloque_sua_chave
+npm install && npm run build
+```
+3. Start Command:
+```
+npm run start
+```
+4. Variáveis de ambiente necessárias:
+```
+JWT_SECRET=chave_super_segura
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_KEY=chave_service_role
+PORT=3001 (se aplicável)
 ```
-2. Faça push para a branch main ou crie um PR.
-3. A Vercel executará:
-  - Build do frontend: `npm run build` (gera `dist/`)
-  - Função serverless backend em `backend/api/index.ts` exposta em `/api`.
 
-Rotas:
-- Frontend SPA: https://seuapp.vercel.app/
-- Backend API: https://seuapp.vercel.app/api/... (ex: `/api/auth/login`)
+Frontend consumirá a API via URL pública configurada em `src/api.ts`.
 
-Teste rápido após deploy (PowerShell):
+Teste rápido (PowerShell):
 ```powershell
-Invoke-RestMethod -Method Post -Uri https://seuapp.vercel.app/api/auth/login -Body (@{ user='admin'; pass='admin' } | ConvertTo-Json) -ContentType 'application/json'
+Invoke-RestMethod -Method Post -Uri https://SEU_BACKEND.onrender.com/auth/login -Body (@{ user='admin'; pass='admin' } | ConvertTo-Json) -ContentType 'application/json'
 ```
 
 ## 🤝 Contribuindo
