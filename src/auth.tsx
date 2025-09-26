@@ -1,18 +1,19 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User } from './data/userData';
 import { USERS, getCurrentUser } from './data/userData';
+import api from './api';
 
 export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
-  login: () => false,
+  login: async () => false,
   logout: () => {},
 });
 
@@ -40,18 +41,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = (username: string, password: string): boolean => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     try {
       const foundUser = USERS.find(u => u.username === username && u.password === password);
-      
-      if (foundUser) {
-        setUser(foundUser);
-        localStorage.setItem('userId', foundUser.id);
-        localStorage.setItem('user', foundUser.username);
-        localStorage.setItem('auth', '1');
+      if (!foundUser) return false;
+
+      // Persistência local comum a todos
+      setUser(foundUser);
+      localStorage.setItem('userId', foundUser.id);
+      localStorage.setItem('user', foundUser.username);
+      localStorage.setItem('auth', '1');
+
+      if (foundUser.role === 'demo') {
+        localStorage.removeItem('authToken');
         return true;
       }
-      return false;
+
+      // Requisita token ao backend
+      try {
+        const res = await api.post('/auth/login', { user: username, pass: password });
+        if (res.data?.token) {
+          localStorage.setItem('authToken', res.data.token);
+        } else {
+          console.warn('Login backend não retornou token (pode ser conta demo)');
+        }
+      } catch (err) {
+        console.error('Falha ao obter token do backend:', err);
+        // Falhou token => desfaz login local para evitar estado inconsistente
+        setUser(null);
+        localStorage.removeItem('userId');
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth');
+        return false;
+      }
+
+      return true;
     } catch (error) {
       console.error('Erro no login:', error);
       return false;
@@ -64,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('userId');
       localStorage.removeItem('user');
       localStorage.removeItem('auth');
+      localStorage.removeItem('authToken');
     } catch (error) {
       console.error('Erro no logout:', error);
     }
@@ -84,12 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ 
-      user,
-      isAuthenticated: !!user, 
-      login, 
-      logout 
-    }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

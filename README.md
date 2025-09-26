@@ -213,15 +213,27 @@ const Button = styled.button`
 
 ## 🚀 Deploy
 
-### Frontend (Vercel)
-```bash
-npm run build
-vercel --prod
-```
+### Deploy Unificado (Vercel)
+O projeto agora está configurado para deploy full-stack (frontend + backend serverless) na Vercel.
 
-### Backend (Render/Railway)
-```bash
-npm run start
+1. Configure variáveis de ambiente no dashboard da Vercel (Project Settings > Environment Variables):
+```
+JWT_SECRET=coloque_sua_chave
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_KEY=chave_service_role
+```
+2. Faça push para a branch main ou crie um PR.
+3. A Vercel executará:
+  - Build do frontend: `npm run build` (gera `dist/`)
+  - Função serverless backend em `backend/api/index.ts` exposta em `/api`.
+
+Rotas:
+- Frontend SPA: https://seuapp.vercel.app/
+- Backend API: https://seuapp.vercel.app/api/... (ex: `/api/auth/login`)
+
+Teste rápido após deploy (PowerShell):
+```powershell
+Invoke-RestMethod -Method Post -Uri https://seuapp.vercel.app/api/auth/login -Body (@{ user='admin'; pass='admin' } | ConvertTo-Json) -ContentType 'application/json'
 ```
 
 ## 🤝 Contribuindo

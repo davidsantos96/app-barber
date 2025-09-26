@@ -13,9 +13,10 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(user, pass)) {
+    const ok = await login(user, pass);
+    if (ok) {
       toast.success('Login realizado!');
       navigate('/dashboard');
     } else {
@@ -23,8 +24,9 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleQuickLogin = (username: string, password: string, userName: string) => {
-    if (login(username, password)) {
+  const handleQuickLogin = async (username: string, password: string, userName: string) => {
+    const ok = await login(username, password);
+    if (ok) {
       toast.success(`Login realizado como ${userName}!`);
       navigate('/dashboard');
     } else {

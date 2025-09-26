@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../supabaseClient';
 
@@ -14,13 +14,16 @@ interface Agendamento {
   data: string; // formato ISO
   horario: string; // HH:mm
   status: 'confirmado' | 'cancelado' | 'concluido';
+  user_id: string;
 }
 
 // CRUD de agendamentos
 
 // Listar agendamentos
-router.get('/', async (req, res) => {
-  const { data, error } = await supabase.from('agendamentos').select('*');
+router.get('/', async (req: Request, res) => {
+  const userId = req.user?.username;
+  if (!userId) return res.status(401).json({ error: 'Não autenticado' });
+  const { data, error } = await supabase.from('agendamentos').select('*').eq('user_id', userId);
   if (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -28,9 +31,11 @@ router.get('/', async (req, res) => {
 });
 
 // Buscar agendamento por id
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res) => {
+  const userId = req.user?.username;
+  if (!userId) return res.status(401).json({ error: 'Não autenticado' });
   const { id } = req.params;
-  const { data, error } = await supabase.from('agendamentos').select('*').eq('id', id);
+  const { data, error } = await supabase.from('agendamentos').select('*').eq('id', id).eq('user_id', userId);
   if (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -42,7 +47,9 @@ router.get('/:id', async (req, res) => {
 
 
 // Criar agendamento
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request, res) => {
+  const userId = req.user?.username;
+  if (!userId) return res.status(401).json({ error: 'Não autenticado' });
   const { clienteId, servicoId, servico, data: dataAgendamento, horario } = req.body;
   if (!clienteId || !servicoId || !servico || !dataAgendamento || !horario) {
     return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
@@ -54,6 +61,7 @@ router.post('/', async (req, res) => {
     .eq('data', dataAgendamento)
     .eq('horario', horario)
     .eq('status', 'confirmado');
+    // .eq('user_id', userId) // Se o conflito for por usuário, descomente
   if (errorExistentes) {
     return res.status(500).json({ error: errorExistentes.message });
   }
@@ -67,7 +75,8 @@ router.post('/', async (req, res) => {
     servico,
     data: dataAgendamento,
     horario,
-    status: 'confirmado'
+    status: 'confirmado',
+    user_id: userId
   };
   const { data, error } = await supabase.from('agendamentos').insert([novoAgendamento]).select();
   if (error) {
@@ -79,14 +88,17 @@ router.post('/', async (req, res) => {
 
 
 // Atualizar agendamento (reagendar)
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req: Request, res) => {
+  const userId = req.user?.username;
+  if (!userId) return res.status(401).json({ error: 'Não autenticado' });
   const { id } = req.params;
   const { horario, data: dataAgendamento, status } = req.body;
   // Verifica se existe agendamento
   const { data: agendamentoAtual, error: errorAtual } = await supabase
     .from('agendamentos')
     .select('*')
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', userId);
   if (errorAtual) {
     return res.status(500).json({ error: errorAtual.message });
   }
@@ -102,6 +114,7 @@ router.put('/:id', async (req, res) => {
       .eq('horario', horario)
       .eq('status', 'confirmado')
       .neq('id', id);
+      // .eq('user_id', userId) // Caso deseje checar conflito por usuário
     if (errorExistentes) {
       return res.status(500).json({ error: errorExistentes.message });
     }
@@ -117,6 +130,7 @@ router.put('/:id', async (req, res) => {
     .from('agendamentos')
     .update(updateObj)
     .eq('id', id)
+    .eq('user_id', userId)
     .select();
   if (error) {
     return res.status(500).json({ error: error.message });
@@ -126,13 +140,16 @@ router.put('/:id', async (req, res) => {
 
 
 // Cancelar agendamento
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res) => {
+  const userId = req.user?.username;
+  if (!userId) return res.status(401).json({ error: 'Não autenticado' });
   const { id } = req.params;
   // Verifica se existe agendamento
   const { data: agendamentoAtual, error: errorAtual } = await supabase
     .from('agendamentos')
     .select('*')
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', userId);
   if (errorAtual) {
     return res.status(500).json({ error: errorAtual.message });
   }
@@ -143,7 +160,8 @@ router.delete('/:id', async (req, res) => {
   const { error } = await supabase
     .from('agendamentos')
     .update({ status: 'cancelado' })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', userId);
   if (error) {
     return res.status(500).json({ error: error.message });
   }

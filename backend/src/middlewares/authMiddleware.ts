@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// ATENÇÃO: Esta chave deve ser a mesma usada em `auth.ts` e mantida em segurança.
-const JWT_SECRET = 'sua-chave-secreta-super-longa-e-aleatoria-aqui';
+// Usa a mesma chave do auth.ts via variável de ambiente
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;

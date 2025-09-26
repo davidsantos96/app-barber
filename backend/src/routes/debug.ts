@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { __internal_reset_agendamentos } from './agendamentos';
-import { __internal_reset_clientes } from './clientes';
+// Removed internal reset imports (no longer exported). If needed, implement explicit reset helpers.
 
 const router = Router();
 
@@ -20,8 +19,7 @@ router.post('/reset-database', (req, res) => {
     fs.writeFileSync(clientesFilePath, emptyData, 'utf-8');
 
     // Limpa os arrays em memória para evitar a necessidade de reiniciar o servidor
-    __internal_reset_agendamentos();
-    __internal_reset_clientes();
+  // In-memory arrays no longer used; data cleared only on disk.
 
     res.status(200).json({ message: 'Banco de dados limpo com sucesso.' });
   } catch (error) {
