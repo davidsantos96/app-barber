@@ -41,9 +41,9 @@ const ClientesPage: React.FC = () => {
       alert('Nome e telefone são obrigatórios');
       return;
     }
-    const telefoneRegex = /^\(\d{2}\)\d{5}-\d{4}$/;
+    const telefoneRegex = /^\(\d{2}\)\d{4,5}-\d{4}$/;
     if (!telefoneRegex.test(editTelefone)) {
-      alert('Telefone deve estar no formato (11)91234-5678');
+      alert('Telefone inválido. Formatos aceitos: (11)91234-5678 ou (11)1234-5678');
       return;
     }
     setEditLoading(true);

@@ -44,40 +44,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       const foundUser = USERS.find(u => u.username === username && u.password === password);
-      if (!foundUser) return false;
+      if (!foundUser) {
+        console.warn('[AUTH] Usuário não encontrado ou senha incorreta');
+        return false;
+      }
 
-      // Persistência local comum a todos
-      setUser(foundUser);
-      localStorage.setItem('userId', foundUser.id);
-      localStorage.setItem('user', foundUser.username);
-      localStorage.setItem('auth', '1');
-
+      // Usuário demo não gera token → pode setar direto
       if (foundUser.role === 'demo') {
+        console.log('[AUTH] Login demo - sem token');
+        setUser(foundUser);
+        localStorage.setItem('userId', foundUser.id);
+        localStorage.setItem('user', foundUser.username);
+        localStorage.setItem('auth', '1');
         localStorage.removeItem('authToken');
         return true;
       }
 
-      // Requisita token ao backend
+      // Primeiro tenta obter token para evitar estado sem token
+      let token: string | null = null;
       try {
         const res = await api.post('/auth/login', { user: username, pass: password });
-        if (res.data?.token) {
-          localStorage.setItem('authToken', res.data.token);
-        } else {
-          console.warn('Login backend não retornou token (pode ser conta demo)');
+        token = res.data?.token || null;
+        if (!token) {
+          console.error('[AUTH] Backend não retornou token para usuário não-demo');
+          return false;
         }
+        console.log('[AUTH] Token recebido tamanho:', token.length);
       } catch (err) {
-        console.error('Falha ao obter token do backend:', err);
-        // Falhou token => desfaz login local para evitar estado inconsistente
-        setUser(null);
-        localStorage.removeItem('userId');
-        localStorage.removeItem('user');
-        localStorage.removeItem('auth');
+        console.error('[AUTH] Falha na chamada /auth/login:', err);
         return false;
       }
 
+      // Agora persiste usuário e token juntos
+      setUser(foundUser);
+      localStorage.setItem('userId', foundUser.id);
+      localStorage.setItem('user', foundUser.username);
+      localStorage.setItem('auth', '1');
+      if (token) localStorage.setItem('authToken', token);
+
       return true;
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('[AUTH] Erro inesperado no login:', error);
       return false;
     }
   };

@@ -14,6 +14,13 @@ const app = express();
 app.use(cors());
 const port = process.env.PORT || 3001;
 
+// Debug leve: comprimento do segredo (não imprime o segredo)
+if (process.env.JWT_SECRET) {
+  console.log('[BOOT] JWT_SECRET length:', process.env.JWT_SECRET.length);
+} else {
+  console.warn('[BOOT] JWT_SECRET NÃO definido! Logins JWT falharão.');
+}
+
 app.use(express.json());
 
 app.get('/', (req, res) => {

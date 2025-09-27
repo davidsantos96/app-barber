@@ -39,8 +39,9 @@ router.post('/login', (req, res) => {
 
   const payload = { username: foundUser.user, role: foundUser.role };
   console.log('[AUTH] Gerando token para', payload);
+  console.log('[AUTH] JWT_SECRET length:', JWT_SECRET.length);
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
-  console.log('[AUTH] Token gerado tamanho:', token.length);
+  console.log('[AUTH] Token gerado tamanho:', token.length, 'prefixo:', token.substring(0, 20));
   res.json({ token, user: { username: foundUser.user, role: foundUser.role } });
 });
 

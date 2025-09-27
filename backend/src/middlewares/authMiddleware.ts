@@ -20,6 +20,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.user = decoded;
     next();
   } catch (error) {
+    console.warn('[AUTH MIDDLEWARE] Falha ao verificar token:', (error as any)?.message);
     res.status(401).json({ error: 'Token inválido ou expirado.' });
   }
 };

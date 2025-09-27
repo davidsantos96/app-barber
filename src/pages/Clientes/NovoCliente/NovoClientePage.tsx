@@ -1,23 +1,11 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import {
-  PageBg,
-  HeaderBar,
-  HeaderContent,
-  BackButton,
-  HeaderTitle,
-  MainContent,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Footer,
-  SaveButton
-} from './NovoClientePage.style';
+import { PageBg, HeaderBar, HeaderContent, BackButton, HeaderTitle, MainContent, Form, FormGroup, Label, Input, Footer, SaveButton } from './NovoClientePage.style';
+import { useData } from '../../../contexts';
 
 const NovoClientePage: React.FC = () => {
   const navigate = useNavigate();
+  const { createCliente, refreshClientes } = useData();
   const [nome, setNome] = useState('');
   const [apelido, setApelido] = useState('');
   const [telefone, setTelefone] = useState('');
@@ -25,10 +13,20 @@ const NovoClientePage: React.FC = () => {
   // Função para formatar telefone (formato (99)99999-9999)
   function formatTelefone(value: string) {
     const nums = value.replace(/\D/g, '');
-    if (nums.length <= 2) return `(${nums}`;
-    if (nums.length <= 7) return `(${nums.slice(0,2)})${nums.slice(2)}`;
-    if (nums.length <= 11) return `(${nums.slice(0,2)})${nums.slice(2,7)}-${nums.slice(7)}`;
-    return `(${nums.slice(0,2)})${nums.slice(2,7)}-${nums.slice(7,11)}`;
+    if (nums.length === 0) return '';
+    if (nums.length < 3) return `(${nums}`; // (
+    if (nums.length < 7) return `(${nums.slice(0,2)})${nums.slice(2)}`; // (11)9...
+    if (nums.length < 11) { // pode ser fixo (4) ou celular (5) ainda digitando
+      return `(${nums.slice(0,2)})${nums.slice(2, nums.length)}`;
+    }
+    // nums.length >= 11
+    // Decide se é formato 4+4 ou 5+4 para separar
+    const corpo = nums.slice(2);
+    if (corpo.length === 9) { // 5 + 4 (celular)
+      return `(${nums.slice(0,2)})${corpo.slice(0,5)}-${corpo.slice(5,9)}`;
+    }
+    // fallback para 4 + 4 (fixo) quando tem 8
+    return `(${nums.slice(0,2)})${corpo.slice(0,4)}-${corpo.slice(4,8)}`;
   }
   const [loading, setLoading] = useState(false);
 
@@ -38,16 +36,20 @@ const NovoClientePage: React.FC = () => {
       alert('Nome e telefone são obrigatórios');
       return;
     }
+    const telefoneRegex = /^\(\d{2}\)\d{4,5}-\d{4}$/;
+    if (!telefoneRegex.test(telefone)) {
+      alert('Telefone inválido. Use (11)91234-5678 ou (11)1234-5678');
+      return;
+    }
     setLoading(true);
     try {
-      await axios.post('https://app-barber-hmm9.onrender.com/clientes', {
-        nome,
-        apelido,
-        telefone
-      });
+      await createCliente({ nome, apelido, telefone });
+      // Garante que lista será atualizada (caso outro estado dependa)
+      await refreshClientes();
       navigate('/clientes');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Erro ao salvar cliente');
+      console.error('[NOVO CLIENTE] Erro ao salvar:', err);
+      alert(err.response?.data?.error || err.message || 'Erro ao salvar cliente');
     } finally {
       setLoading(false);
     }
@@ -65,7 +67,7 @@ const NovoClientePage: React.FC = () => {
         </HeaderContent>
       </HeaderBar>
       <MainContent>
-        <Form onSubmit={handleSubmit}>
+  <Form id="novo-cliente-form" onSubmit={handleSubmit}>
           <FormGroup>
             <Label htmlFor="nome">Nome</Label>
             <Input
@@ -95,10 +97,11 @@ const NovoClientePage: React.FC = () => {
               id="telefone"
               name="telefone"
               type="tel"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              placeholder="Digite o telefone"
+              inputMode="tel"
+              placeholder="(11)91234-5678"
               value={telefone}
+              maxLength={15}
+              autoComplete="tel"
               onChange={e => setTelefone(formatTelefone(e.target.value))}
               onPaste={e => {
                 e.preventDefault();
@@ -111,7 +114,7 @@ const NovoClientePage: React.FC = () => {
         </Form>
       </MainContent>
       <Footer>
-        <SaveButton type="submit" form="">
+        <SaveButton type="submit" form="novo-cliente-form">
           {loading ? 'Salvando...' : 'Salvar Cliente'}
         </SaveButton>
       </Footer>

@@ -14,6 +14,10 @@ const getBaseURL = () => {
 
 const api = axios.create({
   baseURL: getBaseURL(),
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  }
 });
 
 // Interceptor para adicionar o token de autenticação em cada requisição
@@ -21,6 +25,11 @@ api.interceptors.request.use(config => {
   const token = localStorage.getItem('authToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    // Log leve para depuração (não spammar)
+    if (config.url && /clientes|agendamentos/.test(config.url)) {
+      console.warn('[API] Requisição sem token para', config.url);
+    }
   }
   return config;
 });

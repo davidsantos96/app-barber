@@ -18,7 +18,13 @@ interface Cliente {
 router.get('/', async (req: Request, res) => {
   const userId = req.user?.username;
   if (!userId) return res.status(401).json({ error: 'Não autenticado' });
+  console.log('[CLIENTES][LIST] userId:', userId);
   const { data, error } = await supabase.from('clientes').select('*').eq('user_id', userId);
+  if (error) {
+    console.warn('[CLIENTES][LIST] Erro Supabase:', error.message);
+  } else {
+    console.log('[CLIENTES][LIST] registros retornados:', data?.length ?? 0);
+  }
   if (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -35,12 +41,14 @@ router.post('/', async (req: Request, res) => {
   if (!nome || !telefone) {
     return res.status(400).json({ error: 'Nome e telefone são obrigatórios' });
   }
-  const telefoneRegex = /^\(\d{2}\)\d{5}-\d{4}$/;
+  // Aceita telefones com 4 ou 5 dígitos no prefixo: (11)91234-5678 ou (11)1234-5678
+  const telefoneRegex = /^\(\d{2}\)\d{4,5}-\d{4}$/;
   if (!telefoneRegex.test(telefone)) {
-    return res.status(400).json({ error: 'Telefone deve estar no formato (11)91234-5678' });
+    return res.status(400).json({ error: 'Telefone inválido. Formatos aceitos: (11)91234-5678 ou (11)1234-5678' });
   }
   const novoCliente: Cliente = { id: uuidv4(), nome, apelido, telefone, user_id: userId };
   const { data, error } = await supabase.from('clientes').insert([novoCliente]).select();
+  console.log('[CLIENTES][CREATE] novoCliente id:', novoCliente.id, 'erro?', !!error);
   if (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -55,6 +63,7 @@ router.get('/:id', async (req: Request, res) => {
   if (!userId) return res.status(401).json({ error: 'Não autenticado' });
   const { id } = req.params;
   const { data, error } = await supabase.from('clientes').select('*').eq('id', id).eq('user_id', userId);
+  console.log('[CLIENTES][GET] id:', id, 'userId:', userId, 'found:', data?.length ?? 0, 'erro?', !!error);
   if (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -73,9 +82,9 @@ router.put('/:id', async (req: Request, res) => {
   if (!nome || !telefone) {
     return res.status(400).json({ error: 'Nome e telefone são obrigatórios' });
   }
-  const telefoneRegex = /^\(\d{2}\)\d{5}-\d{4}$/;
+  const telefoneRegex = /^\(\d{2}\)\d{4,5}-\d{4}$/;
   if (!telefoneRegex.test(telefone)) {
-    return res.status(400).json({ error: 'Telefone deve estar no formato (11)91234-5678' });
+    return res.status(400).json({ error: 'Telefone inválido. Formatos aceitos: (11)91234-5678 ou (11)1234-5678' });
   }
   const { data, error } = await supabase
     .from('clientes')
@@ -83,6 +92,7 @@ router.put('/:id', async (req: Request, res) => {
     .eq('id', id)
     .eq('user_id', userId)
     .select();
+  console.log('[CLIENTES][UPDATE] id:', id, 'userId:', userId, 'updated:', data?.length ?? 0, 'erro?', !!error);
   if (error) {
     return res.status(500).json({ error: error.message });
   }

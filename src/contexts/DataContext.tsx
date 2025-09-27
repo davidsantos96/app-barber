@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useApi } from './ApiContext';
 import { isDemoUser, getUserData, getCurrentUser } from '../data/userData';
+import { useAuth } from '../auth';
 
 export interface Cliente {
   id: string;
@@ -31,6 +32,8 @@ const DataContext = createContext<DataContextType | null>(null);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const api = useApi();
+  // Observa o usuário autenticado para refetch após login/logout
+  const { user: authUser } = useAuth();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +66,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Erro ao buscar clientes:', error);
       setClientes([]);
     }
-  }, [api]);
+  }, [api, authUser]); // refaz quando usuário muda
 
   const refreshServicos = useCallback(async () => {
     try {
@@ -93,7 +96,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Erro ao buscar serviços:', error);
     }
-  }, [api]);
+  }, [api, authUser]);
 
   const getClienteById = useCallback((id: string) => {
     return clientes.find(c => c.id === id);
@@ -110,8 +113,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setClientes(prev => [novoCliente, ...prev]);
       return novoCliente;
     }
-    
+    console.log('[DATA][createCliente] Enviando payload:', cliente);
     const { data } = await api.post<Cliente>('/clientes', cliente);
+    console.log('[DATA][createCliente] Resposta backend:', data);
     setClientes(prev => [data, ...prev]);
     return data;
   }, [api]);
@@ -135,9 +139,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await Promise.all([refreshClientes(), refreshServicos()]);
       setLoading(false);
     };
-    
     loadInitialData();
-  }, [refreshClientes, refreshServicos]);
+  }, [refreshClientes, refreshServicos, authUser]);
 
   return (
     <DataContext.Provider 
