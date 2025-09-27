@@ -9,6 +9,7 @@ export interface Agendamento {
   servico: string;
   data: string;    // YYYY-MM-DD
   horario: string; // HH:mm
+  duracao_minutos?: number;
   status: 'confirmado' | 'cancelado' | 'concluido';
 }
 
@@ -18,6 +19,7 @@ type CreateAgendamentoData = {
   servico: string;
   data: string;
   horario: string;
+  duracao_minutos?: number;
 };
 
 type AgendamentosContextType = {
@@ -89,7 +91,7 @@ export const AgendamentosProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return novoAgendamento;
     }
     
-    const payload = { ...data, status: 'confirmado' as const };
+  const payload = { ...data, status: 'confirmado' as const };
     const response = await api.post<Agendamento>('/agendamentos', payload);
     setAgendamentos(prev => [response.data, ...prev]);
     return response.data;
@@ -103,7 +105,7 @@ export const AgendamentosProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return agendamentoAtualizado;
     }
     
-    const { data } = await api.put<Agendamento>(`/agendamentos/${id}`, updates);
+  const { data } = await api.put<Agendamento>(`/agendamentos/${id}`, updates);
     setAgendamentos(prev => prev.map(a => (a.id === id ? data : a)));
     return data;
   }, [api, agendamentos]);

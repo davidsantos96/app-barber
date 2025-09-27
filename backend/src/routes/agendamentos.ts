@@ -13,6 +13,7 @@ interface Agendamento {
   servico: string;
   data: string; // formato ISO
   horario: string; // HH:mm
+  duracao_minutos?: number;
   status: 'confirmado' | 'cancelado' | 'concluido';
   user_id: string;
 }
@@ -50,23 +51,33 @@ router.get('/:id', async (req: Request, res) => {
 router.post('/', async (req: Request, res) => {
   const userId = req.user?.username;
   if (!userId) return res.status(401).json({ error: 'Não autenticado' });
-  const { clienteId, servicoId, servico, data: dataAgendamento, horario } = req.body;
+  const { clienteId, servicoId, servico, data: dataAgendamento, horario, duracao_minutos } = req.body;
   if (!clienteId || !servicoId || !servico || !dataAgendamento || !horario) {
     return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
   }
-  // Verifica sobreposição de horários
+  const duracao = Number(duracao_minutos) > 0 ? Number(duracao_minutos) : 30;
+  // Carrega todos do dia para checar intervalo
   const { data: existentes, error: errorExistentes } = await supabase
     .from('agendamentos')
     .select('*')
     .eq('data', dataAgendamento)
-    .eq('horario', horario)
     .eq('status', 'confirmado');
-    // .eq('user_id', userId) // Se o conflito for por usuário, descomente
   if (errorExistentes) {
     return res.status(500).json({ error: errorExistentes.message });
   }
-  if (existentes && existentes.length > 0) {
-    return res.status(409).json({ error: 'Horário já ocupado' });
+  const [h, m] = horario.split(':').map(Number);
+  const inicioNovo = h * 60 + m;
+  const fimNovo = inicioNovo + duracao;
+  const conflito = (existentes || []).some(a => {
+    if (!a.horario) return false;
+    const aDur = a.duracao_minutos || 30;
+    const [ah, am] = a.horario.split(':').map(Number);
+    const inicioA = ah * 60 + am;
+    const fimA = inicioA + aDur;
+    return (inicioNovo < fimA) && (fimNovo > inicioA);
+  });
+  if (conflito) {
+    return res.status(409).json({ error: 'Conflito de horário dentro da duração escolhida' });
   }
   const novoAgendamento: Agendamento = {
     id: uuidv4(),
@@ -75,6 +86,7 @@ router.post('/', async (req: Request, res) => {
     servico,
     data: dataAgendamento,
     horario,
+    duracao_minutos: duracao,
     status: 'confirmado',
     user_id: userId
   };
@@ -92,7 +104,7 @@ router.put('/:id', async (req: Request, res) => {
   const userId = req.user?.username;
   if (!userId) return res.status(401).json({ error: 'Não autenticado' });
   const { id } = req.params;
-  const { horario, data: dataAgendamento, status } = req.body;
+  const { horario, data: dataAgendamento, status, duracao_minutos } = req.body;
   // Verifica se existe agendamento
   const { data: agendamentoAtual, error: errorAtual } = await supabase
     .from('agendamentos')
@@ -106,26 +118,39 @@ router.put('/:id', async (req: Request, res) => {
     return res.status(404).json({ error: 'Agendamento não encontrado' });
   }
   // Verifica sobreposição de horários
-  if (dataAgendamento && horario) {
+  if ((dataAgendamento || horario || duracao_minutos)) {
+    const dataBase = dataAgendamento || agendamentoAtual[0].data;
+    const horarioBase = horario || agendamentoAtual[0].horario;
+    const durBase = duracao_minutos ? Number(duracao_minutos) : (agendamentoAtual[0].duracao_minutos || 30);
     const { data: existentes, error: errorExistentes } = await supabase
       .from('agendamentos')
       .select('*')
-      .eq('data', dataAgendamento)
-      .eq('horario', horario)
+      .eq('data', dataBase)
       .eq('status', 'confirmado')
       .neq('id', id);
-      // .eq('user_id', userId) // Caso deseje checar conflito por usuário
     if (errorExistentes) {
       return res.status(500).json({ error: errorExistentes.message });
     }
-    if (existentes && existentes.length > 0) {
-      return res.status(409).json({ error: 'Horário já ocupado' });
+    const [hh, mm] = horarioBase.split(':').map(Number);
+    const inicioNovo = hh * 60 + mm;
+    const fimNovo = inicioNovo + durBase;
+    const conflito = (existentes || []).some(a => {
+      if (!a.horario) return false;
+      const aDur = a.duracao_minutos || 30;
+      const [ah, am] = a.horario.split(':').map(Number);
+      const inicioA = ah * 60 + am;
+      const fimA = inicioA + aDur;
+      return (inicioNovo < fimA) && (fimNovo > inicioA);
+    });
+    if (conflito) {
+      return res.status(409).json({ error: 'Conflito de horário dentro da duração escolhida' });
     }
   }
   const updateObj: Partial<Agendamento> = {};
   if (dataAgendamento) updateObj.data = dataAgendamento;
   if (horario) updateObj.horario = horario;
   if (status) updateObj.status = status;
+  if (duracao_minutos) updateObj.duracao_minutos = Number(duracao_minutos);
   const { data, error } = await supabase
     .from('agendamentos')
     .update(updateObj)

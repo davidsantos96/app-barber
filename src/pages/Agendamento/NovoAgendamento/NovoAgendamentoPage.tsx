@@ -26,7 +26,7 @@ const NovoAgendamentoPage: React.FC = () => {
   const dateInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { clientes, servicos } = useData();
-  const { create } = useAgendamentos();
+  const { create, agendamentos } = useAgendamentos();
   
   // Removido duplicidade de clienteId/setClienteId
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -35,6 +35,8 @@ const NovoAgendamentoPage: React.FC = () => {
   const [servicoNome, setServicoNome] = useState('');
   const [data, setData] = useState('');
   const [hora, setHora] = useState('');
+  // Duração derivada do serviço selecionado
+  const [duracao, setDuracao] = useState<number | undefined>(undefined);
   const horaInputRef = useRef<HTMLSelectElement>(null);
   // Gerar horários de 30 em 30 minutos das 9h às 20h
   const horarios = Array.from({ length: ((20 - 9) * 2) + 1 }, (_, i) => {
@@ -42,6 +44,29 @@ const NovoAgendamentoPage: React.FC = () => {
     const m = (i % 2) * 30;
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
   });
+  // Helpers para checar conflitos
+  const toMinutes = (hm: string) => {
+    const [h, m] = hm.split(':').map(Number); return h * 60 + m;
+  };
+  const FIM_EXPEDIENTE = 20 * 60; // 20:00
+
+  const agendamentosDoDia = agendamentos.filter(a => a.data === data && a.status === 'confirmado');
+
+  const isHorarioConflitante = (inicio: string): boolean => {
+    if (!data) return false; // ainda não selecionou data
+    const dur = (duracao || servicos.find(s=>s.id===servicoId)?.duracao_minutos || 30);
+    const start = toMinutes(inicio);
+    const end = start + dur;
+    // Ultrapassa expediente
+    if (end > FIM_EXPEDIENTE) return true;
+    return agendamentosDoDia.some(a => {
+      const aStart = toMinutes(a.horario);
+      const aDur = a.duracao_minutos || 30;
+      const aEnd = aStart + aDur;
+      return (start < aEnd) && (end > aStart);
+    });
+  };
+
   const [loading, setLoading] = useState(false);
   const [searchCliente, setSearchCliente] = useState('');
 
@@ -58,7 +83,8 @@ const NovoAgendamentoPage: React.FC = () => {
         servicoId,
         servico: servicoNome,
         data,
-        horario: hora
+        horario: hora,
+        duracao_minutos: duracao || servicos.find(s=>s.id===servicoId)?.duracao_minutos || 30
       });
       navigate(-1);
     } catch (err: any) {
@@ -129,6 +155,7 @@ const NovoAgendamentoPage: React.FC = () => {
                 setServicoId(e.target.value);
                 const servico = servicos.find(s => s.id === e.target.value);
                 setServicoNome(servico ? servico.nome : '');
+                setDuracao(servico?.duracao_minutos || 30);
               }}
               required
             >
@@ -138,6 +165,11 @@ const NovoAgendamentoPage: React.FC = () => {
               ))}
             </Select>
           </FieldGroup>
+          {servicoId && (
+            <div style={{ color: '#aaa', margin: '-0.6rem 0 0.8rem 2.2rem', fontSize: '0.85rem' }}>
+              Duração: {duracao || servicos.find(s=>s.id===servicoId)?.duracao_minutos || 30} min
+            </div>
+          )}
           <FieldGroup>
             <IconLeft>
               <FiCalendar style={{ cursor: 'pointer' }} onClick={() => dateInputRef.current?.showPicker()} />
@@ -160,11 +192,17 @@ const NovoAgendamentoPage: React.FC = () => {
               value={hora}
               onChange={e => setHora(e.target.value)}
               required
+              disabled={!data || !servicoId}
             >
               <option value="">Selecione o horário</option>
-              {horarios.map(h => (
-                <option key={h} value={h}>{h}</option>
-              ))}
+              {horarios.map(h => {
+                const disabled = isHorarioConflitante(h);
+                return (
+                  <option key={h} value={h} disabled={disabled}>
+                    {h}{disabled ? ' (indisp.)' : ''}
+                  </option>
+                );
+              })}
             </Select>
           </FieldGroup>
           <AgendarButton type="submit">

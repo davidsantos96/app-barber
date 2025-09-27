@@ -1,64 +1,100 @@
-import { Router } from 'express';
-import fs from 'fs';
-import path from 'path';
+import { Router, Request } from 'express';
+import { supabase } from '../supabaseClient';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
-const filePath = path.join(__dirname, '../../data/servicos.json');
 
-function readServicos() {
-  if (!fs.existsSync(filePath)) return [];
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+interface Servico {
+  id: string;
+  nome: string;
+  preco: number;
+  duracao_minutos: number; // 30 ou 60 etc.
+  user_id?: string; // opcional caso personalize por barbeiro
 }
-function writeServicos(servicos: any[]) {
-  fs.writeFileSync(filePath, JSON.stringify(servicos, null, 2));
-}
 
-// GET /servicos
-router.get('/', (req, res) => {
-  res.json(readServicos());
+// LISTAR (se existir coluna user_id e quiser filtrar por usuário, tente usar eq)
+router.get('/', async (req: Request, res) => {
+  try {
+    const userId = req.user?.username;
+    // Primeiro tenta buscar com filtro user_id, se erro (coluna não existe) faz fallback global
+    let { data, error } = await supabase.from('servicos').select('*').eq('user_id', userId || '');
+    if (error) {
+      // Fallback: sem filtro
+      ({ data, error } = await supabase.from('servicos').select('*'));
+      if (error) throw error;
+    }
+    res.json((data || []).map(s => ({
+      id: s.id,
+      nome: s.nome,
+      preco: s.preco,
+      duracao_minutos: s.duracao_minutos ?? 30
+    })));
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// GET /servicos/:id
-router.get('/:id', (req, res) => {
-  const servicos = readServicos();
-  const servico = servicos.find((s: any) => s.id === req.params.id);
-  if (!servico) return res.status(404).json({ error: 'Serviço não encontrado' });
-  res.json(servico);
+router.get('/:id', async (req: Request, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase.from('servicos').select('*').eq('id', id).single();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Serviço não encontrado' });
+    res.json({ ...data, duracao_minutos: data.duracao_minutos ?? 30 });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// POST /servicos
-router.post('/', (req, res) => {
-  const servicos = readServicos();
-  const { nome, preco } = req.body;
-  if (!nome || preco == null) return res.status(400).json({ error: 'Nome e preço obrigatórios' });
-  const id = Date.now().toString();
-  const novo = { id, nome, preco };
-  servicos.push(novo);
-  writeServicos(servicos);
-  res.status(201).json(novo);
+router.post('/', async (req: Request, res) => {
+  try {
+    const userId = req.user?.username; // opcional
+    const { nome, preco, duracao_minutos } = req.body;
+    if (!nome || preco == null) return res.status(400).json({ error: 'Nome e preço obrigatórios' });
+    const novo: Servico = {
+      id: uuidv4(),
+      nome,
+      preco: Number(preco),
+      duracao_minutos: duracao_minutos ? Number(duracao_minutos) : 30,
+      user_id: userId
+    };
+    const { data, error } = await supabase.from('servicos').insert([novo]).select();
+    if (error) throw error;
+    res.status(201).json(data?.[0] ?? novo);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// PUT /servicos/:id
-router.put('/:id', (req, res) => {
-  const servicos = readServicos();
-  const idx = servicos.findIndex((s: any) => s.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'Serviço não encontrado' });
-  const { nome, preco } = req.body;
-  if (!nome || preco == null) return res.status(400).json({ error: 'Nome e preço obrigatórios' });
-  servicos[idx] = { ...servicos[idx], nome, preco };
-  writeServicos(servicos);
-  res.json(servicos[idx]);
+router.put('/:id', async (req: Request, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, preco, duracao_minutos } = req.body;
+    if (!nome || preco == null) return res.status(400).json({ error: 'Nome e preço obrigatórios' });
+    const updateObj: Partial<Servico> = {
+      nome,
+      preco: Number(preco),
+      duracao_minutos: duracao_minutos ? Number(duracao_minutos) : 30
+    };
+    const { data, error } = await supabase.from('servicos').update(updateObj).eq('id', id).select();
+    if (error) throw error;
+    if (!data || data.length === 0) return res.status(404).json({ error: 'Serviço não encontrado' });
+    res.json(data[0]);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// DELETE /servicos/:id
-router.delete('/:id', (req, res) => {
-  let servicos = readServicos();
-  const idx = servicos.findIndex((s: any) => s.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'Serviço não encontrado' });
-  const removido = servicos[idx];
-  servicos = servicos.filter((s: any) => s.id !== req.params.id);
-  writeServicos(servicos);
-  res.json(removido);
+router.delete('/:id', async (req: Request, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase.from('servicos').delete().eq('id', id).select();
+    if (error) throw error;
+    if (!data || data.length === 0) return res.status(404).json({ error: 'Serviço não encontrado' });
+    res.json(data[0]);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 export default router;
